@@ -1,12 +1,13 @@
 package config
 
 type ServerConfig struct {
-	Name             string           `mapstructure:"name" json:"name"`
-	Port             int              `mapstructure:"port" json:"port"`
-	Tags             []string         `mapstructure:"tags" json:"tags"`
-	DBConfig         DBConfig         `mapstructure:"db" json:"db"`
-	RedisConfig      RedisConfig      `mapstructure:"redis" json:"redis"`
-	UserServerConfig UserServerConfig `mapstructure:"user-server" json:"user-server"`
+	Name                 string               `mapstructure:"name" json:"name"`
+	Port                 int                  `mapstructure:"port" json:"port"`
+	Tags                 []string             `mapstructure:"tags" json:"tags"`
+	DBConfig             DBConfig             `mapstructure:"db" json:"db"`
+	RedisConfig          RedisConfig          `mapstructure:"redis" json:"redis"`
+	UserServerConfig     UserServerConfig     `mapstructure:"user-server" json:"user-server"`
+	RabbitMQServerConfig RabbitMQServerConfig `mapstructure:"rabbit-server" json:"rabbit-server"`
 }
 
 type DBConfig struct {
@@ -29,4 +30,12 @@ type UserServerConfig struct {
 	Host string `mapstructure:"host" json:"host"`
 	Port int64  `mapstructure:"port" json:"port"`
 	Name string `mapstructure:"name" json:"name"`
+}
+
+type RabbitMQServerConfig struct {
+	Host        string `mapstructure:"host" json:"host"`
+	Port        int64  `mapstructure:"port" json:"port"`
+	Name        string `mapstructure:"name" json:"name"`
+	Exchange    string `mapstructure:"exchange" json:"exchange"`
+	QueuePrefix string `mapstructure:"queue_suffix" json:"queue_suffix"`
 }

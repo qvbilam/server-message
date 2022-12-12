@@ -6,11 +6,7 @@ import (
 	"go.uber.org/zap"
 	"message/business"
 	"message/global"
-	"strconv"
 )
-
-var ExchangeName = "qvbilam-message-exchange"
-var QueueNamePrefix = "qvbilam-message-queue-"
 
 func InitQueue() {
 	user := "admin"
@@ -25,23 +21,14 @@ func InitQueue() {
 	}
 
 	global.MessageQueueClient = conn
-	suffix := global.ServerConfig.RabbitMQServerConfig.QueueSuffix
-	if suffix == "" {
-		suffix = strconv.Itoa(int(global.ServerConfig.Port))
-	}
-	QueueName := QueueNamePrefix + suffix
+
+	ExchangeName := global.ServerConfig.RabbitMQServerConfig.Exchange
 
 	fmt.Printf("create queue exchange: %s\n", ExchangeName)
-	fmt.Printf("create queue: %s\n", QueueName)
 
 	// 全局变量
-	global.ServerConfig.RabbitMQServerConfig.MessageExchangeName = ExchangeName
-	global.ServerConfig.RabbitMQServerConfig.MessageQueueName = QueueName
+	global.ServerConfig.RabbitMQServerConfig.Exchange = ExchangeName
 
 	// 创建队列
-	business.CreateExchange(ExchangeName)
-	business.CreateQueue(QueueName, ExchangeName)
-
-	// 接受消息
-	go business.ConsumeQueue(QueueName)
+	_ = business.CreateExchange(ExchangeName)
 }

@@ -1,8 +1,0 @@
-syntax = "proto3";
-package messagePb.v1;
-option go_package="message/api/qvbilam/page/v1;pageV1";
-
-message privateRequest {
-
-}
-

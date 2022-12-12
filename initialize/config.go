@@ -39,6 +39,8 @@ func initEnvConfig() {
 	global.ServerConfig.RedisConfig.Port = redisPort
 	global.ServerConfig.RedisConfig.Password = os.Getenv("REDIS_PASSWORD")
 	global.ServerConfig.RedisConfig.Database = redisDb
+
+	// todo 增加配置 rabbit 等...
 }
 
 func initViperConfig() {

@@ -25,6 +25,8 @@ func main() {
 	}
 
 	_ = db.AutoMigrate(
+		&model.QueueExchange{},
+		&model.Queue{},
 		&model.Private{},
 		&model.Room{},
 		&model.Group{},

@@ -32,8 +32,21 @@ message CreateGroupRequest{
   MessageRequest Message = 3;
 }
 
+message UpdateQueueRequest {
+  string Name = 1;
+  string ExchangeName = 2;
+  int64 Status = 3;
+}
+
+message QueueResponse {
+  string Name = 1;
+  string ExchangeName = 2;
+}
 
 service Message {
+  rpc CreateQueue (UpdateQueueRequest) returns (QueueResponse);
+  rpc UpdateQueue (UpdateQueueRequest) returns (google.protobuf.Empty);
+  rpc DeleteQueue (UpdateQueueRequest) returns (google.protobuf.Empty);
   rpc CreatePrivateMessage (CreatePrivateRequest) returns (google.protobuf.Empty);
   rpc CreateRoomMessage(CreateRoomRequest) returns (google.protobuf.Empty);
   rpc CreateGroupMessage(CreateGroupRequest) returns (google.protobuf.Empty);

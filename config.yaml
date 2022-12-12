@@ -1,4 +1,5 @@
 name: "user"
+port: "9804"
 db:
   host: "127.0.0.1"
   port: 3306
@@ -15,3 +16,9 @@ user-server:
   host: "127.0.0.1"
   port: 9801
   name: "grpc-user-server"
+rabbit-server:
+  host: 127.0.0.1
+  port: 5672
+  name: rabbitmq-server
+  exchange: qvbilam-message-exchange
+  queue_suffix: qvbilam-message-queue-

@@ -31,7 +31,6 @@ func (b *QueueBusiness) Create() (*model.Queue, error) {
 	b.ExchangeId = eId
 	idleEntity, err := b.GetExchangeIdleQueue()
 	if err == nil && idleEntity != nil {
-		fmt.Printf("123123")
 		return idleEntity, err
 	}
 

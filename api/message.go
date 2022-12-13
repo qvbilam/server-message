@@ -60,13 +60,25 @@ func (s *MessageServer) DeleteQueue(ctx context.Context, request *proto.UpdateQu
 }
 
 func (s *MessageServer) CreatePrivateMessage(ctx context.Context, request *proto.CreatePrivateRequest) (*emptypb.Empty, error) {
-	return nil, nil
+	b := business.PrivateMessageBusiness{
+		SenderUserId: request.UserId,
+		TargetUserId: request.TargetUserId,
+		ContentType:  request.Message.Type,
+		Content:      request.Message.Content,
+		Url:          request.Message.Url,
+		Extra:        request.Message.Extra,
+	}
+	_, err := b.CreateMessage()
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *MessageServer) CreateRoomMessage(ctx context.Context, request *proto.CreateRoomRequest) (*emptypb.Empty, error) {
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }

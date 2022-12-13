@@ -1,7 +1,6 @@
 package business
 
 import (
-	"fmt"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -70,8 +69,11 @@ func CreateExchange(exchangeName string) error {
 }
 
 // PushExchange 发送交换机消息
-func PushExchange(exchangeName string, body []byte) {
-	ch, _ := global.MessageQueueClient.Channel()
+func PushExchange(exchangeName string, body []byte) error {
+	ch, err := global.MessageQueueClient.Channel()
+	if err != nil {
+		return err
+	}
 	if err := ch.Publish(
 		exchangeName,
 		"",
@@ -81,6 +83,12 @@ func PushExchange(exchangeName string, body []byte) {
 			Body: body,
 		},
 	); err != nil {
-		fmt.Printf("send exchange message err: %s", err)
+		return err
 	}
+	return nil
+}
+
+func PushDefaultExchange(body []byte) error {
+	exchange := global.ServerConfig.RabbitMQServerConfig.Exchange
+	return PushExchange(exchange, body)
 }

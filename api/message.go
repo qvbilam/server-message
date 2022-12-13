@@ -64,9 +64,14 @@ func (s *MessageServer) CreatePrivateMessage(ctx context.Context, request *proto
 		SenderUserId: request.UserId,
 		TargetUserId: request.TargetUserId,
 		ContentType:  request.Message.Type,
-		Content:      request.Message.Content,
-		Url:          request.Message.Url,
-		Extra:        request.Message.Extra,
+		Content: business.MessageBusiness{
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+		//Content:      request.Message.Content,
+		//Url:          request.Message.Url,
+		//Extra:        request.Message.Extra,
 	}
 	_, err := b.CreateMessage()
 	if err != nil {

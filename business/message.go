@@ -2,19 +2,26 @@ package business
 
 import (
 	"encoding/json"
-	userProto "message/api/qvbilam/user/v1"
 	"message/enum"
 	"message/resource"
 	"strconv"
 )
 
+type SendUser struct {
+	Id       int64       `json:"id"`
+	Code     int64       `json:"code"`
+	Nickname string      `json:"nickname"`
+	Avatar   string      `json:"avatar"`
+	Gender   string      `json:"gender"`
+	Extra    interface{} `json:"extra"`
+}
+
 type MessageBusiness struct {
-	Type      string
-	Content   string
-	Url       string
-	User      *userProto.UserResponse
-	UserExtra string
-	Extra     string
+	Type    string    `json:"type"`
+	Content string    `json:"content"`
+	Url     string    `json:"url,omitempty"`
+	User    *SendUser `json:"user"`
+	Extra   string    `json:"extra"`
 }
 
 func (b *MessageBusiness) Resource() ([]byte, error) {
@@ -34,8 +41,8 @@ func (b *MessageBusiness) textResource() ([]byte, error) {
 		Content: b.Content,
 		Extra:   b.Extra,
 	}
+	res.Type = enum.MsgTypeTxt
 	res.User = b.userResource()
-	res.User.Extra = b.UserExtra
 	return json.Marshal(res)
 }
 
@@ -45,9 +52,9 @@ func (b *MessageBusiness) imageResource() ([]byte, error) {
 		Url:     b.Url,
 		Extra:   b.Extra,
 	}
-
+	res.Type = enum.MsgTypeImg
 	res.User = b.userResource()
-	res.User.Extra = b.UserExtra
+
 	return json.Marshal(res)
 }
 
@@ -59,7 +66,7 @@ func (b *MessageBusiness) userResource() resource.User {
 			name = "system"
 		}
 
-		b.User = &userProto.UserResponse{
+		b.User = &SendUser{
 			Id:       b.User.Id,
 			Nickname: name,
 			Avatar:   "",
@@ -70,7 +77,7 @@ func (b *MessageBusiness) userResource() resource.User {
 		Id:     strconv.Itoa(userId),
 		Name:   b.User.Nickname,
 		Avatar: b.User.Avatar,
-		Extra:  b.UserExtra,
+		Extra:  b.Extra,
 	}
 	return u
 }

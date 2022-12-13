@@ -9,7 +9,7 @@ type PrivateObject struct {
 	SendUserId  int64       `json:"send_user_id"`
 	TargetId    int64       `json:"target_id"`
 	Type        string      `json:"type"`
-	ContentType string      `json:"content_type"`
+	ContentType string      `json:"-"`
 	Content     interface{} `json:"content"`
 }
 
@@ -32,7 +32,7 @@ type RoomObject struct {
 	SendUserId  int64    `json:"send_user_id"`
 	TargetId    int64    `json:"target_id"`
 	Type        string   `json:"type"`
-	ContentType string   `json:"content_type"`
+	ContentType string   `json:"-"`
 	Content     struct{} `json:"content"`
 }
 

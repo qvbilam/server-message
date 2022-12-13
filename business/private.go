@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,13 +13,11 @@ import (
 )
 
 type PrivateMessageBusiness struct {
-	SenderUserId int64  `json:"sender_id"`
-	TargetUserId int64  `json:"target_id"`
-	Type         string `json:"type"`
-	ContentType  string `json:"content_type"`
-	Content      string `json:"content"`
-	Url          string `json:"url"`
-	Extra        string `json:"extra"`
+	SenderUserId int64           `json:"sender_id"`
+	TargetUserId int64           `json:"target_id"`
+	Type         string          `json:"type"`
+	ContentType  string          `json:"-"`
+	Content      MessageBusiness `json:"content"`
 }
 
 func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
@@ -29,10 +28,17 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 
 	mb := MessageBusiness{
 		Type:    b.ContentType,
-		Content: b.Content,
-		Url:     b.Url,
-		User:    sender,
-		Extra:   b.Extra,
+		Content: b.Content.Content,
+		Url:     b.Content.Url,
+		User: &SendUser{
+			Id:       sender.Id,
+			Code:     sender.Code,
+			Nickname: sender.Nickname,
+			Avatar:   sender.Avatar,
+			Gender:   sender.Gender,
+			Extra:    "",
+		},
+		Extra: b.Content.Extra,
 	}
 	m, err := mb.Resource()
 
@@ -69,9 +75,11 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		SendUserId:  b.SenderUserId,
 		TargetId:    b.TargetUserId,
 		ContentType: b.ContentType,
-		Content:     mb.Resource(),
+		Content:     mb,
 	}
 	body := r.Encode()
+	fmt.Printf("content: %s\n", r.Content)
+	fmt.Printf("body: %s\n", body)
 
 	if err := PushDefaultExchange(body); err != nil {
 		tx.Rollback()

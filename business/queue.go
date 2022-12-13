@@ -66,7 +66,7 @@ func (b *QueueBusiness) GetExchangeIdleQueue() (*model.Queue, error) {
 		Where(model.Queue{ExchangeID: eId}).
 		Where("status in ?", []int64{enum.QueueStatusIdle, enum.QueueStatusClose}).
 		First(&entity); res.RowsAffected == 0 {
-		return b.Create()
+		return nil, nil
 	}
 
 	return &entity, nil

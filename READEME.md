@@ -16,6 +16,8 @@ go get -u github.com/olivere/elastic/v7
 go get -u google.golang.org/protobuf
 go get -u google.golang.org/grpc
 go get -u google.golang.org/genproto
+# 重试
+go get -u github.com/grpc-ecosystem/go-grpc-middleware/retry
 
 # 密码加密
 go get -u github.com/anaskhan96/go-password-encoder

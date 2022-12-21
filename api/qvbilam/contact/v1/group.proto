@@ -43,6 +43,7 @@ message SearchGroupRequest {
   repeated int64 ids = 2;
   int64 code = 3;
   string name = 4;
+  int64 userId = 5;
 }
 
 message SearchGroupMemberRequest {

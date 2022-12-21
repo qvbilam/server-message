@@ -6,21 +6,22 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	contactProto "message/api/qvbilam/contact/v1"
 	userProto "message/api/qvbilam/user/v1"
 	"message/global"
 	"message/model"
 	"message/resource"
 )
 
-type PrivateMessageBusiness struct {
-	SenderUserId int64           `json:"sender_id"`
-	TargetUserId int64           `json:"target_id"`
-	Type         string          `json:"type"`
-	ContentType  string          `json:"-"`
-	Content      MessageBusiness `json:"content"`
+type GroupMessageBusiness struct {
+	SenderUserId  int64           `json:"sender_id"`
+	TargetGroupId int64           `json:"target_id"`
+	Type          string          `json:"type"`
+	ContentType   string          `json:"-"`
+	Content       MessageBusiness `json:"content"`
 }
 
-func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
+func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 	sender, err := global.UserServerClient.Detail(context.Background(), &userProto.GetUserRequest{Id: b.SenderUserId})
 	if err != nil {
 		return nil, err
@@ -58,35 +59,40 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		return nil, status.Errorf(codes.Internal, "保存私聊消息失败")
 	}
 
-	entity := model.Private{
+	entity := model.Group{
 		UserModel: model.UserModel{
 			UserID: b.SenderUserId,
 		},
-		TargetUserId: b.TargetUserId,
-		MessageUid:   messageEntity.Uid,
+		GroupID:    b.TargetGroupId,
+		MessageUid: messageEntity.Uid,
 	}
 	if res := global.DB.Save(&entity); res.RowsAffected == 0 {
 		tx.Rollback()
 		return nil, status.Errorf(codes.Internal, "创建私聊消息失败")
 	}
-
-	// 私聊类型
-	r := resource.PrivateObject{
-		UserId:      b.TargetUserId,
-		SendUserId:  b.SenderUserId,
-		TargetId:    b.TargetUserId,
-		ContentType: b.ContentType,
-		Content:     mb,
-	}
-	body := r.Encode()
-	fmt.Printf("content: %s\n", r.Content)
-	fmt.Printf("body: %s\n", body)
-
-	if err := PushDefaultExchange(body); err != nil {
-		tx.Rollback()
-		return nil, status.Errorf(codes.Internal, "发送私聊消息失败:%s", err.Error())
-	}
-
 	tx.Commit()
+	// 发送群消息
+	b.send(mb)
 	return m, nil
+}
+
+func (b *GroupMessageBusiness) send(mb MessageBusiness) {
+	members, _ := global.ContactGroupServerClient.Member(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.TargetGroupId})
+	for _, m := range members.Members {
+		r := resource.GroupObject{
+			UserId:      m.User.Id,
+			SendUserId:  b.SenderUserId,
+			TargetId:    b.TargetGroupId,
+			ContentType: b.ContentType,
+			Content:     mb,
+		}
+
+		body := r.Encode()
+		fmt.Printf("content: %s\n", r.Content)
+		fmt.Printf("body: %s\n", body)
+
+		if err := PushDefaultExchange(body); err != nil {
+			fmt.Printf("发送群聊聊消息失败:%s", err.Error())
+		}
+	}
 }

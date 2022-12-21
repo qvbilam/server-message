@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	contactProto "message/api/qvbilam/contact/v1"
 	userProto "message/api/qvbilam/user/v1"
 	"message/global"
 	"time"
@@ -18,8 +19,9 @@ type dialConfig struct {
 }
 
 type serverClientConfig struct {
-	userDialConfig *dialConfig
-	fileDialConfig *dialConfig
+	userDialConfig    *dialConfig
+	contactDialConfig *dialConfig
+	fileDialConfig    *dialConfig
 }
 
 func InitServer() {
@@ -29,9 +31,15 @@ func InitServer() {
 			port: global.ServerConfig.UserServerConfig.Port,
 			name: global.ServerConfig.UserServerConfig.Name,
 		},
+		contactDialConfig: &dialConfig{
+			host: global.ServerConfig.ContactServerConfig.Host,
+			port: global.ServerConfig.ContactServerConfig.Port,
+			name: global.ServerConfig.ContactServerConfig.Name,
+		},
 	}
 
 	s.initUserServer()
+	s.initContactServer()
 }
 
 func clientOption() []retry.CallOption {
@@ -58,4 +66,21 @@ func (s *serverClientConfig) initUserServer() {
 	userClient := userProto.NewUserClient(conn)
 
 	global.UserServerClient = userClient
+}
+
+func (s *serverClientConfig) initContactServer() {
+	opts := clientOption()
+
+	conn, err := grpc.Dial(
+		fmt.Sprintf("%s:%d", s.contactDialConfig.host, s.contactDialConfig.port),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(retry.UnaryClientInterceptor(opts...)))
+	if err != nil {
+		zap.S().Fatalf("%s dial error: %s", s.contactDialConfig.name, err)
+	}
+
+	groupClient := contactProto.NewGroupClient(conn)
+	//friendClient := contactProto.NewFriendClient(conn)
+
+	global.ContactGroupServerClient = groupClient
 }

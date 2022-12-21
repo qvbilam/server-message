@@ -1,0 +1,33 @@
+syntax = "proto3";
+package contactPb.v1;
+import "google/protobuf/empty.proto";
+import "api/qvbilam/user/v1/user.proto";
+option go_package="message/api/qvbilam/contact/v1;contactV1";
+
+message FriendResponse {
+  int64 id = 1;
+  int64 userId = 2;
+  userPb.v1.UserResponse friend = 3;
+}
+
+message FriendsResponse {
+  int64 total = 1;
+  repeated FriendResponse friends = 2;
+}
+
+message UpdateFriendRequest {
+  int64 id = 1;
+  int64 userId = 2;
+  int64 friendUserId = 3;
+}
+
+message SearchFriendRequest{
+  int64 userId = 1;
+}
+
+service friend {
+  rpc Create(UpdateFriendRequest) returns (google.protobuf.Empty);
+  rpc Update(UpdateFriendRequest) returns (google.protobuf.Empty);
+  rpc Delete(UpdateFriendRequest) returns (google.protobuf.Empty);
+  rpc Get(SearchFriendRequest) returns (FriendsResponse);
+}

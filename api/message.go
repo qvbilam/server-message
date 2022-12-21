@@ -82,5 +82,19 @@ func (s *MessageServer) CreateRoomMessage(ctx context.Context, request *proto.Cr
 }
 
 func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
+	b := business.GroupMessageBusiness{
+		SenderUserId:  request.UserId,
+		TargetGroupId: request.GroupId,
+		ContentType:   request.Message.Type,
+		Content: business.MessageBusiness{
+			Type:    request.Message.Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+	if _, err := b.CreateMessage(); err != nil {
+		return nil, err
+	}
 	return &emptypb.Empty{}, nil
 }

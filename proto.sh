@@ -16,8 +16,11 @@ proto page page v1
 # 用户服务
 proto user user v1
 
+# 联系人
+proto contact friend v1
+proto contact group v1
+
 # 消息服务
 proto message message v1
-
 
 

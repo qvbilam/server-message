@@ -7,6 +7,7 @@ type ServerConfig struct {
 	DBConfig             DBConfig             `mapstructure:"db" json:"db"`
 	RedisConfig          RedisConfig          `mapstructure:"redis" json:"redis"`
 	UserServerConfig     UserServerConfig     `mapstructure:"user-server" json:"user-server"`
+	ContactServerConfig  ContactServerConfig  `mapstructure:"contact-server" json:"contact-server"`
 	RabbitMQServerConfig RabbitMQServerConfig `mapstructure:"rabbit-server" json:"rabbit-server"`
 }
 
@@ -27,6 +28,12 @@ type RedisConfig struct {
 }
 
 type UserServerConfig struct {
+	Host string `mapstructure:"host" json:"host"`
+	Port int64  `mapstructure:"port" json:"port"`
+	Name string `mapstructure:"name" json:"name"`
+}
+
+type ContactServerConfig struct {
 	Host string `mapstructure:"host" json:"host"`
 	Port int64  `mapstructure:"port" json:"port"`
 	Name string `mapstructure:"name" json:"name"`

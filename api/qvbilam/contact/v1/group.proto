@@ -1,0 +1,95 @@
+syntax = "proto3";
+package contactPb.v1;
+import "google/protobuf/empty.proto";
+import "api/qvbilam/user/v1/user.proto";
+option go_package="message/api/qvbilam/page/v1;contactV1";
+
+message GroupResponse {
+  int64 id = 1;
+  int64 userId = 2;
+  int64 code = 3;
+  string name = 4;
+  string avatar = 5;
+  string cover = 6;
+  string introduce = 7;
+  int64 memberCount = 8;
+  int64 allowMemberCount = 9;
+  bool isGlobalBanned = 10;
+  int64 bannedEndTime = 11;
+  int64 createdTime = 12;
+}
+
+message GroupsResponse {
+  int64 total = 1;
+  repeated GroupResponse groups = 2;
+}
+
+message UpdateGroupRequest {
+  int64 id = 1;
+  int64 userId = 2;
+  int64 code = 3;
+  string name = 4;
+  string avatar = 5;
+  string cover = 6;
+  string introduce = 7;
+  int64 memberCount = 8;
+  int64 allowMemberCount = 9;
+  bool isGlobalBanned = 10;
+  int64 bannedEndTime = 11;
+}
+
+message SearchGroupRequest {
+  int64 id = 1;
+  repeated int64 ids = 2;
+  int64 code = 3;
+  string name = 4;
+}
+
+message SearchGroupMemberRequest {
+  int64 groupId = 1;
+}
+
+message UpdateGroupMemberRequest {
+  int64 id = 1;
+  int64 groupId = 2;
+  int64 userId = 3;
+  int64 operatorId = 4;
+  int64 role = 5;
+  int64 level = 6;
+  int64 exp = 7;
+  string remark = 8;
+  bool isDnd = 9;
+  bool isBanned = 10;
+  int64 bannedEndTime = 11;
+}
+
+message GroupMemberResponse {
+  int64 id = 1;
+  GroupResponse group = 2;
+  userPb.v1.UserResponse user = 3;
+  string nickname = 4;
+  int64 role = 5;
+  int64 level = 6;
+  string remark = 7;
+  bool isDnd = 8;
+  bool isBanned = 9;
+  int64 createdTime = 10;
+}
+
+message GroupMembersResponse {
+  int64 total = 1;
+  repeated GroupMemberResponse members = 2;
+}
+
+service Group {
+  rpc Create(UpdateGroupRequest) returns (GroupResponse);
+  rpc Update(UpdateGroupRequest) returns (google.protobuf.Empty);
+  rpc Delete(UpdateGroupRequest) returns (google.protobuf.Empty);
+  rpc Get(SearchGroupRequest) returns (GroupsResponse);
+
+  rpc Member(SearchGroupMemberRequest) returns (GroupMembersResponse);
+  rpc Join(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
+  rpc Quit(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
+  rpc KickOut(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
+  rpc Mine(SearchGroupRequest) returns (GroupMembersResponse);
+}

@@ -1,21 +1,30 @@
 name: "user"
 port: "9804"
+# 数据库
 db:
   host: "127.0.0.1"
   port: 3306
   user: "root"
   password: "root"
   database: "qvbilam_message"
+# 缓存
 redis:
   host: "127.0.0.1"
   port: 6379
   user: ""
   password: ""
   database: 0
+# 用户服务
 user-server:
   host: "127.0.0.1"
   port: 9801
   name: "grpc-user-server"
+# 关系服务
+contact-server:
+  host: "127.0.0.1"
+  port: 9805
+  name: "grpc-contact-server"
+# rabbit
 rabbit-server:
   host: 127.0.0.1
   port: 5672

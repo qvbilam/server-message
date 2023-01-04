@@ -53,5 +53,9 @@ service Message {
   rpc DeleteQueue (UpdateQueueRequest) returns (google.protobuf.Empty);
   rpc CreatePrivateMessage (CreatePrivateRequest) returns (google.protobuf.Empty);
   rpc CreateRoomMessage(CreateRoomRequest) returns (google.protobuf.Empty);
+
+
   rpc CreateGroupMessage(CreateGroupRequest) returns (google.protobuf.Empty);
+  rpc CreateGroupTxtMessage(CreateGroupRequest) returns (google.protobuf.Empty);
+  rpc CreateGroupCmdMessage(CreateGroupRequest) returns (google.protobuf.Empty);
 }

@@ -98,3 +98,41 @@ func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.C
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *MessageServer) CreateGroupTxtMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
+	Type := enum.MsgTypeTxt
+	b := business.GroupMessageBusiness{
+		SenderUserId:  request.UserId,
+		TargetGroupId: request.GroupId,
+		ContentType:   Type,
+		Content: business.MessageBusiness{
+			Type:    Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+	if _, err := b.CreateMessage(); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageServer) CreateGroupCmdMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
+	Type := enum.CmdMsgType
+	b := business.GroupMessageBusiness{
+		SenderUserId:  request.UserId,
+		TargetGroupId: request.GroupId,
+		ContentType:   Type,
+		Content: business.MessageBusiness{
+			Type:    Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+	if _, err := b.CreateMessage(); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}

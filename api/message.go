@@ -65,6 +65,8 @@ func (s *MessageServer) CreatePrivateMessage(ctx context.Context, request *proto
 		TargetUserId: request.TargetUserId,
 		ContentType:  request.Message.Type,
 		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
+			Type:    request.Message.Type,
 			Content: request.Message.Content,
 			Url:     request.Message.Url,
 			Extra:   request.Message.Extra,

@@ -6,6 +6,7 @@ type ServerConfig struct {
 	Tags                 []string             `mapstructure:"tags" json:"tags"`
 	DBConfig             DBConfig             `mapstructure:"db" json:"db"`
 	RedisConfig          RedisConfig          `mapstructure:"redis" json:"redis"`
+	ESConfig             ESConfig             `mapstructure:"es" json:"es"`
 	UserServerConfig     UserServerConfig     `mapstructure:"user-server" json:"user-server"`
 	ContactServerConfig  ContactServerConfig  `mapstructure:"contact-server" json:"contact-server"`
 	RabbitMQServerConfig RabbitMQServerConfig `mapstructure:"rabbit-server" json:"rabbit-server"`
@@ -25,6 +26,11 @@ type RedisConfig struct {
 	User     string `mapstructure:"user" json:"user"`
 	Password string `mapstructure:"password" json:"password"`
 	Database int    `mapstructure:"database" json:"database"`
+}
+
+type ESConfig struct {
+	Host string `mapstructure:"host" json:"host"`
+	Port int    `mapstructure:"port" json:"port"`
 }
 
 type UserServerConfig struct {

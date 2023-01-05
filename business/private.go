@@ -45,6 +45,8 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		return nil, err
 	}
 
+	fmt.Printf("private message business: %+v\n", b)
+
 	uId := uuid.NewV4()
 	tx := global.DB.Begin()
 	messageEntity := model.Message{
@@ -63,6 +65,8 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		},
 		TargetUserId: b.TargetUserId,
 		MessageUid:   messageEntity.Uid,
+		Type:         messageEntity.Type,
+		Content:      b.Content.Content,
 	}
 	if res := global.DB.Save(&entity); res.RowsAffected == 0 {
 		tx.Rollback()

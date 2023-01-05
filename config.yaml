@@ -14,6 +14,10 @@ redis:
   user: ""
   password: ""
   database: 0
+# elastic
+es:
+  host: "127.0.0.1"
+  port: 9200
 # 用户服务
 user-server:
   host: "127.0.0.1"

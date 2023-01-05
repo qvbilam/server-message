@@ -66,6 +66,8 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 		},
 		GroupID:    b.TargetGroupId,
 		MessageUid: messageEntity.Uid,
+		Type:       messageEntity.Type,
+		Content:    b.Content.Content,
 	}
 	if res := global.DB.Save(&entity); res.RowsAffected == 0 {
 		tx.Rollback()

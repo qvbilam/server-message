@@ -1,12 +1,10 @@
 package business
 
 import (
-	"context"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	userProto "message/api/qvbilam/user/v1"
 	"message/global"
 	"message/model"
 	"message/resource"
@@ -21,7 +19,8 @@ type RoomMessageBusiness struct {
 }
 
 func (b *RoomMessageBusiness) CreateMessage() ([]byte, error) {
-	sender, err := global.UserServerClient.Detail(context.Background(), &userProto.GetUserRequest{Id: b.SenderUserId})
+	sb := SenderBusiness{UserId: b.SenderUserId}
+	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,7 @@ syntax = "proto3";
 package contactPb.v1;
 import "google/protobuf/empty.proto";
 import "api/qvbilam/user/v1/user.proto";
-option go_package="message/api/qvbilam/page/v1;contactV1";
+option go_package="message/api/qvbilam/contact/v1;contactV1";
 
 message GroupResponse {
   int64 id = 1;
@@ -17,6 +17,8 @@ message GroupResponse {
   bool isGlobalBanned = 10;
   int64 bannedEndTime = 11;
   int64 createdTime = 12;
+  GroupMemberResponse member = 13;
+  GroupMembersResponse members = 14;
 }
 
 message GroupsResponse {
@@ -48,6 +50,7 @@ message SearchGroupRequest {
 
 message SearchGroupMemberRequest {
   int64 groupId = 1;
+  int64 userId = 2;
 }
 
 message UpdateGroupMemberRequest {
@@ -88,9 +91,10 @@ service Group {
   rpc Delete(UpdateGroupRequest) returns (google.protobuf.Empty);
   rpc Get(SearchGroupRequest) returns (GroupsResponse);
 
-  rpc Member(SearchGroupMemberRequest) returns (GroupMembersResponse);
+  rpc Member(SearchGroupMemberRequest) returns (GroupMemberResponse);
+  rpc Members(SearchGroupMemberRequest) returns (GroupMembersResponse);
   rpc Join(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
   rpc Quit(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
   rpc KickOut(UpdateGroupMemberRequest) returns (google.protobuf.Empty);
-  rpc Mine(SearchGroupRequest) returns (GroupMembersResponse);
+  rpc Mine(SearchGroupRequest) returns (GroupsResponse);
 }

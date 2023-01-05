@@ -87,6 +87,7 @@ func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.C
 		TargetGroupId: request.GroupId,
 		ContentType:   request.Message.Type,
 		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
 			Type:    request.Message.Type,
 			Content: request.Message.Content,
 			Url:     request.Message.Url,
@@ -106,6 +107,7 @@ func (s *MessageServer) CreateGroupTxtMessage(ctx context.Context, request *prot
 		TargetGroupId: request.GroupId,
 		ContentType:   Type,
 		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
 			Type:    Type,
 			Content: request.Message.Content,
 			Url:     request.Message.Url,
@@ -125,6 +127,27 @@ func (s *MessageServer) CreateGroupCmdMessage(ctx context.Context, request *prot
 		TargetGroupId: request.GroupId,
 		ContentType:   Type,
 		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
+			Type:    Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+	if _, err := b.CreateMessage(); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageServer) CreateGroupTipMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
+	Type := enum.TipMsgType
+	b := business.GroupMessageBusiness{
+		SenderUserId:  request.UserId,
+		TargetGroupId: request.GroupId,
+		ContentType:   Type,
+		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
 			Type:    Type,
 			Content: request.Message.Content,
 			Url:     request.Message.Url,

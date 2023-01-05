@@ -17,11 +17,12 @@ type SendUser struct {
 }
 
 type MessageBusiness struct {
-	Type    string    `json:"type"`
-	Content string    `json:"content"`
-	Url     string    `json:"url,omitempty"`
-	User    *SendUser `json:"user"`
-	Extra   string    `json:"extra"`
+	Code    int64       `json:"code"`
+	Type    string      `json:"type"`
+	Content string      `json:"content"`
+	Url     string      `json:"url,omitempty"`
+	User    *SendUser   `json:"user"`
+	Extra   interface{} `json:"extra"`
 }
 
 func (b *MessageBusiness) Resource() ([]byte, error) {
@@ -38,6 +39,7 @@ func (b *MessageBusiness) Resource() ([]byte, error) {
 
 func (b *MessageBusiness) textResource() ([]byte, error) {
 	res := resource.Text{
+		Code:    b.Code,
 		Content: b.Content,
 		Extra:   b.Extra,
 	}
@@ -48,6 +50,7 @@ func (b *MessageBusiness) textResource() ([]byte, error) {
 
 func (b *MessageBusiness) imageResource() ([]byte, error) {
 	res := resource.Image{
+		Code:    b.Code,
 		Content: b.Content,
 		Url:     b.Url,
 		Extra:   b.Extra,

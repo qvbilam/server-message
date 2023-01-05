@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	contactProto "message/api/qvbilam/contact/v1"
-	userProto "message/api/qvbilam/user/v1"
 	"message/global"
 	"message/model"
 	"message/resource"
@@ -22,12 +21,14 @@ type GroupMessageBusiness struct {
 }
 
 func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
-	sender, err := global.UserServerClient.Detail(context.Background(), &userProto.GetUserRequest{Id: b.SenderUserId})
+	sb := SenderBusiness{UserId: b.SenderUserId}
+	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
 	}
 
 	mb := MessageBusiness{
+		Code:    b.Content.Code,
 		Type:    b.ContentType,
 		Content: b.Content.Content,
 		Url:     b.Content.Url,
@@ -77,7 +78,7 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 }
 
 func (b *GroupMessageBusiness) send(mb MessageBusiness) {
-	members, _ := global.ContactGroupServerClient.Member(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.TargetGroupId})
+	members, _ := global.ContactGroupServerClient.Members(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.TargetGroupId})
 	for _, m := range members.Members {
 		r := resource.GroupObject{
 			UserId:      m.User.Id,

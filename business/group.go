@@ -11,6 +11,7 @@ import (
 	"message/global"
 	"message/model"
 	"message/resource"
+	"time"
 )
 
 type GroupMessageBusiness struct {
@@ -76,9 +77,11 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 	}
 	tx.Commit()
 	// 发送群消息
+	fmt.Println(time.Now().UnixMicro())
 	go func() {
 		b.send(mb)
 	}()
+	fmt.Println(time.Now().UnixMicro())
 	return m, nil
 }
 

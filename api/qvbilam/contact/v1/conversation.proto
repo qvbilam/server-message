@@ -1,0 +1,51 @@
+syntax = "proto3";
+package contactPb.v1;
+import "google/protobuf/empty.proto";
+option go_package="contact/api/qvbilam/contact/v1;contactV1";
+
+message GetConversationRequest {
+  int64 userId = 1;
+}
+
+message ObjectResponse {
+  int64 id = 1;
+  string name = 2;
+  string avatar = 3;
+  string remark = 4;
+  bool isDND = 5;
+}
+
+message ConversationResponse {
+  int64 id = 1;
+  int64 userId = 2;
+  string objectType = 3;
+  int64 objectId = 4;
+  ObjectResponse object = 5;
+  int64 newsCount = 6;
+  string tips = 7;
+  string lastMessage = 8;
+  int64 lastMessageTime = 9;
+}
+
+message ConversationsResponse {
+  int64 total = 1;
+  repeated ConversationResponse conversations = 2;
+  int64 newsCount = 3;
+}
+
+message UpdateConversationRequest {
+  int64 id = 1;
+  int64 userId = 2;
+  string objectType = 3;
+  int64 objectId = 4;
+  int64 newsCount = 5;
+  string tips = 6;
+  string lastMessage = 7;
+  int64 lastTime = 8;
+}
+
+service conversation {
+  rpc Get(GetConversationRequest) returns (ConversationsResponse);
+  rpc Create(UpdateConversationRequest) returns (google.protobuf.Empty);
+  rpc Delete(UpdateConversationRequest) returns (google.protobuf.Empty);
+}

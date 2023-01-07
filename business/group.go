@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	contactProto "message/api/qvbilam/contact/v1"
+	"message/enum"
 	"message/global"
 	"message/model"
 	"message/resource"
@@ -75,7 +76,9 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 	}
 	tx.Commit()
 	// 发送群消息
-	b.send(mb)
+	go func() {
+		b.send(mb)
+	}()
 	return m, nil
 }
 
@@ -91,8 +94,19 @@ func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 		}
 
 		body := r.Encode()
-		fmt.Printf("content: %s\n", r.Content)
-		fmt.Printf("body: %s\n", body)
+		//fmt.Printf("content: %s\n", r.Content)
+		//fmt.Printf("body: %s\n", body)
+
+		go func() {
+			if mb.Type == enum.MsgTypeTxt {
+				_, _ = global.ContactConversationServerClient.Create(context.Background(), &contactProto.UpdateConversationRequest{
+					UserId:      m.User.Id,
+					ObjectType:  enum.ObjTypeGroup,
+					ObjectId:    b.TargetGroupId,
+					LastMessage: mb.Content,
+				})
+			}
+		}()
 
 		if err := PushDefaultExchange(body); err != nil {
 			fmt.Printf("发送群聊聊消息失败:%s", err.Error())

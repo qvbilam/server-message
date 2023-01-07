@@ -81,6 +81,8 @@ func (s *serverClientConfig) initContactServer() {
 
 	groupClient := contactProto.NewGroupClient(conn)
 	//friendClient := contactProto.NewFriendClient(conn)
+	conversationClient := contactProto.NewConversationClient(conn)
 
 	global.ContactGroupServerClient = groupClient
+	global.ContactConversationServerClient = conversationClient
 }

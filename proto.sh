@@ -19,6 +19,7 @@ proto user user v1
 # 联系人
 proto contact friend v1
 proto contact group v1
+proto contact conversation v1
 
 # 消息服务
 proto message message v1

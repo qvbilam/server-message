@@ -99,6 +99,7 @@ func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.C
 	if _, err := b.CreateMessage(); err != nil {
 		return nil, err
 	}
+
 	return &emptypb.Empty{}, nil
 }
 

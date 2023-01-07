@@ -11,11 +11,12 @@ import (
 )
 
 var (
-	DB                       *gorm.DB
-	Redis                    redis.Client
-	ES                       *elastic.Client
-	ServerConfig             *config.ServerConfig
-	MessageQueueClient       *amqp.Connection
-	UserServerClient         userProto.UserClient
-	ContactGroupServerClient contactProto.GroupClient
+	DB                              *gorm.DB
+	Redis                           redis.Client
+	ES                              *elastic.Client
+	ServerConfig                    *config.ServerConfig
+	MessageQueueClient              *amqp.Connection
+	UserServerClient                userProto.UserClient
+	ContactGroupServerClient        contactProto.GroupClient
+	ContactConversationServerClient contactProto.ConversationClient
 )

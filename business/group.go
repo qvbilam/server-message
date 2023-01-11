@@ -11,7 +11,6 @@ import (
 	"message/global"
 	"message/model"
 	"message/resource"
-	"time"
 )
 
 type GroupMessageBusiness struct {
@@ -77,16 +76,18 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 	}
 	tx.Commit()
 	// 发送群消息
-	fmt.Println(time.Now().UnixMicro())
 	go func() {
 		b.send(mb)
 	}()
-	fmt.Println(time.Now().UnixMicro())
 	return m, nil
 }
 
 func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 	members, _ := global.ContactGroupServerClient.Members(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.TargetGroupId})
+	if members == nil {
+		return
+	}
+
 	for _, m := range members.Members {
 		r := resource.GroupObject{
 			UserId:      m.User.Id,

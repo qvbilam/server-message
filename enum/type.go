@@ -3,6 +3,8 @@ package enum
 const ObjTypePrivate = "private"
 const ObjTypeRoom = "room"
 const ObjTypeGroup = "group"
+const ObjTypeSystem = "system"
+const ObjTypeTips = "tip"
 
 const MsgTypeTxt = "TextMsg"            // 文本消息
 const MsgTypeImg = "ImageMsg"           // 图片消息

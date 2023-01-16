@@ -31,5 +31,7 @@ func main() {
 		&model.Room{},
 		&model.Group{},
 		&model.Message{},
+		&model.System{},
+		&model.Tip{},
 	)
 }

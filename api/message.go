@@ -59,6 +59,47 @@ func (s *MessageServer) DeleteQueue(ctx context.Context, request *proto.UpdateQu
 	return &emptypb.Empty{}, nil
 }
 
+func (s *MessageServer) CreateSystemMessage(ctx context.Context, request *proto.CreateSystemRequest) (*emptypb.Empty, error) {
+	b := business.SystemMessageBusiness{
+		Object:       request.Object,
+		TargetUserId: request.UserId,
+		ContentType:  request.Message.Type,
+		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
+			Type:    request.Message.Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+
+	_, err := b.CreateMessage()
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageServer) CreateTipMessage(ctx context.Context, request *proto.CreateTipRequest) (*emptypb.Empty, error) {
+	b := business.TipMessageBusiness{
+		TargetUserId: request.UserId,
+		ContentType:  request.Message.Type,
+		Content: business.MessageBusiness{
+			Code:    request.Message.Code,
+			Type:    request.Message.Type,
+			Content: request.Message.Content,
+			Url:     request.Message.Url,
+			Extra:   request.Message.Extra,
+		},
+	}
+
+	_, err := b.CreateMessage()
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *MessageServer) CreatePrivateMessage(ctx context.Context, request *proto.CreatePrivateRequest) (*emptypb.Empty, error) {
 	b := business.PrivateMessageBusiness{
 		SenderUserId: request.UserId,

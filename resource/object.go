@@ -5,6 +5,51 @@ import (
 	"message/enum"
 )
 
+type SystemObject struct {
+	UserId      int64       `json:"user_id"`
+	Object      string      `json:"object"`
+	Type        string      `json:"type"`
+	ContentType string      `json:"-"`
+	Content     interface{} `json:"content"`
+}
+
+func (o *SystemObject) Encode() []byte {
+	o.Type = enum.ObjTypeSystem
+	body, _ := json.Marshal(o)
+	return body
+}
+
+func (o *SystemObject) Decode(content []byte) SystemObject {
+	obj := SystemObject{}
+	err := json.Unmarshal(content, &obj)
+	if err != nil {
+		return SystemObject{}
+	}
+	return obj
+}
+
+type TipObject struct {
+	UserId      int64       `json:"user_id"`
+	Type        string      `json:"type"`
+	ContentType string      `json:"-"`
+	Content     interface{} `json:"content"`
+}
+
+func (o *TipObject) Encode() []byte {
+	o.Type = enum.ObjTypeTips
+	body, _ := json.Marshal(o)
+	return body
+}
+
+func (o *TipObject) Decode(content []byte) TipObject {
+	obj := TipObject{}
+	err := json.Unmarshal(content, &obj)
+	if err != nil {
+		return TipObject{}
+	}
+	return obj
+}
+
 type PrivateObject struct {
 	UserId      int64       `json:"user_id"`
 	SendUserId  int64       `json:"send_user_id"`

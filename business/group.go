@@ -14,15 +14,39 @@ import (
 )
 
 type GroupMessageBusiness struct {
-	SenderUserId  int64           `json:"sender_id"`
-	TargetGroupId int64           `json:"target_id"`
-	Type          string          `json:"type"`
-	ContentType   string          `json:"-"`
-	Content       MessageBusiness `json:"content"`
+	UserId      int64           `json:"sender_id"`
+	GroupId     int64           `json:"target_id"`
+	Type        string          `json:"type"`
+	ContentType string          `json:"-"`
+	Content     MessageBusiness `json:"content"`
+}
+
+func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
+	var count int64
+	var m []model.Group
+	condition := model.Group{
+		UserModel: model.UserModel{
+			UserID: b.UserId,
+		},
+		GroupID: b.GroupId,
+	}
+
+	// 只需要部分消息
+	types := []string{enum.CmdMsgType, enum.TipMsgType}
+	global.DB.Where(&condition).Where("type not in (?)", types).Model(&model.Group{}).Count(&count)
+	if count == 0 {
+		return 0, nil
+	}
+
+	if res := global.DB.Where("type not in (?)", types).Where(condition).Preload("Message").Find(&m); res.RowsAffected == 0 {
+		return 0, nil
+	}
+
+	return count, m
 }
 
 func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
-	sb := SenderBusiness{UserId: b.SenderUserId}
+	sb := SenderBusiness{UserId: b.UserId}
 	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
@@ -63,9 +87,9 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 
 	entity := model.Group{
 		UserModel: model.UserModel{
-			UserID: b.SenderUserId,
+			UserID: b.UserId,
 		},
-		GroupID:    b.TargetGroupId,
+		GroupID:    b.GroupId,
 		MessageUid: messageEntity.Uid,
 		Type:       messageEntity.Type,
 		Content:    b.Content.Content,
@@ -83,7 +107,7 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 }
 
 func (b *GroupMessageBusiness) send(mb MessageBusiness) {
-	members, _ := global.ContactGroupServerClient.Members(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.TargetGroupId})
+	members, _ := global.ContactGroupServerClient.Members(context.Background(), &contactProto.SearchGroupMemberRequest{GroupId: b.GroupId})
 	if members == nil {
 		return
 	}
@@ -91,8 +115,8 @@ func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 	for _, m := range members.Members {
 		r := resource.GroupObject{
 			UserId:      m.User.Id,
-			SendUserId:  b.SenderUserId,
-			TargetId:    b.TargetGroupId,
+			SendUserId:  b.UserId,
+			TargetId:    b.GroupId,
 			ContentType: b.ContentType,
 			Content:     mb,
 		}
@@ -106,7 +130,7 @@ func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 				_, _ = global.ContactConversationServerClient.Create(context.Background(), &contactProto.UpdateConversationRequest{
 					UserId:      m.User.Id,
 					ObjectType:  enum.ObjTypeGroup,
-					ObjectId:    b.TargetGroupId,
+					ObjectId:    b.GroupId,
 					LastMessage: mb.Content,
 				})
 			}

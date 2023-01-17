@@ -126,9 +126,9 @@ func (s *MessageServer) CreateRoomMessage(ctx context.Context, request *proto.Cr
 
 func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
 	b := business.GroupMessageBusiness{
-		SenderUserId:  request.UserId,
-		TargetGroupId: request.GroupId,
-		ContentType:   request.Message.Type,
+		UserId:      request.UserId,
+		GroupId:     request.GroupId,
+		ContentType: request.Message.Type,
 		Content: business.MessageBusiness{
 			Code:    request.Message.Code,
 			Type:    request.Message.Type,
@@ -147,9 +147,9 @@ func (s *MessageServer) CreateGroupMessage(ctx context.Context, request *proto.C
 func (s *MessageServer) CreateGroupTxtMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
 	Type := enum.MsgTypeTxt
 	b := business.GroupMessageBusiness{
-		SenderUserId:  request.UserId,
-		TargetGroupId: request.GroupId,
-		ContentType:   Type,
+		UserId:      request.UserId,
+		GroupId:     request.GroupId,
+		ContentType: Type,
 		Content: business.MessageBusiness{
 			Code:    request.Message.Code,
 			Type:    Type,
@@ -167,9 +167,9 @@ func (s *MessageServer) CreateGroupTxtMessage(ctx context.Context, request *prot
 func (s *MessageServer) CreateGroupCmdMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
 	Type := enum.CmdMsgType
 	b := business.GroupMessageBusiness{
-		SenderUserId:  request.UserId,
-		TargetGroupId: request.GroupId,
-		ContentType:   Type,
+		UserId:      request.UserId,
+		GroupId:     request.GroupId,
+		ContentType: Type,
 		Content: business.MessageBusiness{
 			Code:    request.Message.Code,
 			Type:    Type,
@@ -187,9 +187,9 @@ func (s *MessageServer) CreateGroupCmdMessage(ctx context.Context, request *prot
 func (s *MessageServer) CreateGroupTipMessage(ctx context.Context, request *proto.CreateGroupRequest) (*emptypb.Empty, error) {
 	Type := enum.TipMsgType
 	b := business.GroupMessageBusiness{
-		SenderUserId:  request.UserId,
-		TargetGroupId: request.GroupId,
-		ContentType:   Type,
+		UserId:      request.UserId,
+		GroupId:     request.GroupId,
+		ContentType: Type,
 		Content: business.MessageBusiness{
 			Code:    request.Message.Code,
 			Type:    Type,
@@ -202,4 +202,50 @@ func (s *MessageServer) CreateGroupTipMessage(ctx context.Context, request *prot
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageServer) GetPrivateMessage(ctx context.Context, request *proto.GetPrivateMessageRequest) (*proto.MessagesResponse, error) {
+	b := business.PrivateMessageBusiness{
+		SenderUserId: request.UserId,
+		TargetUserId: request.TargetUserId,
+	}
+
+	count, messages := b.Messages()
+	var ms []*proto.MessageResponse
+	for _, m := range messages {
+		ms = append(ms, &proto.MessageResponse{
+			UID:       m.MessageUid,
+			Type:      m.Type,
+			Introduce: m.Content,
+			Content:   m.Message.Content,
+		})
+	}
+
+	res := proto.MessagesResponse{Total: count}
+	res.Messages = ms
+
+	return &res, nil
+}
+
+func (s *MessageServer) GetGroupMessage(ctx context.Context, request *proto.GetPrivateMessageRequest) (*proto.MessagesResponse, error) {
+	b := business.GroupMessageBusiness{
+		UserId:  request.UserId,
+		GroupId: request.TargetUserId,
+	}
+
+	count, messages := b.Messages()
+	var ms []*proto.MessageResponse
+	for _, m := range messages {
+		ms = append(ms, &proto.MessageResponse{
+			UID:       m.MessageUid,
+			Type:      m.Type,
+			Introduce: m.Content,
+			Content:   m.Message.Content,
+		})
+	}
+
+	res := proto.MessagesResponse{Total: count}
+	res.Messages = ms
+
+	return &res, nil
 }

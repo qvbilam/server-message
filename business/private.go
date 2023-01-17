@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"math"
+	"message/enum"
 	"message/global"
 	"message/model"
 	"message/resource"
@@ -17,6 +18,27 @@ type PrivateMessageBusiness struct {
 	Type         string          `json:"type"`
 	ContentType  string          `json:"-"`
 	Content      MessageBusiness `json:"content"`
+
+	Page    *int64 `json:"-"`
+	PerPage *int64 `json:"-"`
+}
+
+func (b *PrivateMessageBusiness) Messages() (int64, []model.Private) {
+	var count int64
+	var m []model.Private
+	// 只需要部分消息
+	types := []string{enum.CmdMsgType, enum.TipMsgType}
+
+	global.DB.Model(&model.Private{}).Where("type not in (?)", types).Where(&model.Private{ChatSn: b.PrivateChatSn()}).Count(&count)
+	if count == 0 {
+		return 0, nil
+	}
+
+	if res := global.DB.Where("type not in (?)", types).Where(&model.Private{ChatSn: b.PrivateChatSn()}).Preload("Message").Find(&m); res.RowsAffected == 0 {
+		return 0, nil
+	}
+
+	return count, m
 }
 
 func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {

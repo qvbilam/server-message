@@ -12,11 +12,12 @@ import (
 type Private struct {
 	IDModel
 	UserModel
-	TargetUserId int64  `gorm:"type:int not null default 0;comment:接受用户;index:idx_target_user"`
-	ChatSn       string `gorm:"type:varchar(64) not null;comment:私聊编号;index:idx_chat_sn"`
-	MessageUid   string `gorm:"type:varchar(64) not null;comment:消息uid;index:idx_uid"`
-	Type         string `gorm:"type:varchar(64) not null;comment:消息文本内容;"`
-	Content      string `gorm:"type:varchar(1024) not null;comment:消息文本内容;"`
+	TargetUserId int64    `gorm:"type:int not null default 0;comment:接受用户;index:idx_target_user"`
+	ChatSn       string   `gorm:"type:varchar(64) not null;comment:私聊编号;index:idx_chat_sn"`
+	MessageUid   string   `gorm:"type:varchar(64) not null;comment:消息uid;index:idx_uid"`
+	Type         string   `gorm:"type:varchar(64) not null;comment:消息文本内容;"`
+	Content      string   `gorm:"type:varchar(1024) not null;comment:消息文本内容;"`
+	Message      *Message `gorm:"foreignKey:uid;references:message_uid"`
 	DateModel
 	DeletedModel
 }

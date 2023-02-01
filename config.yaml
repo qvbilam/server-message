@@ -1,4 +1,4 @@
-name: "user"
+name: "message"
 port: "9804"
 # 数据库
 db:
@@ -33,5 +33,10 @@ rabbit-server:
   host: 127.0.0.1
   port: 5672
   name: rabbitmq-server
+  user: admin
+  password: admin
   exchange: qvbilam-message-exchange
+  exchange_chat_private: qvbilam-chat-exchange-private
+  exchange_chat_group: qvbilam-chat-exchange-group
+  exchange_chat_room: qvbilam-chat-exchange-room
   queue_suffix: qvbilam-message-queue-

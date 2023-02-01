@@ -42,6 +42,7 @@ func (b *PrivateMessageBusiness) Messages() (int64, []model.Private) {
 }
 
 func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
+	// 获取发送者
 	sb := SenderBusiness{UserId: b.SenderUserId}
 	sender, err := sb.Sender()
 	if err != nil {
@@ -70,6 +71,7 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 
 	fmt.Printf("private message business: %+v\n", b)
 
+	// 创建消息
 	uId := uuid.NewV4()
 	tx := global.DB.Begin()
 	messageEntity := model.Message{
@@ -82,6 +84,7 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		return nil, status.Errorf(codes.Internal, "保存私聊消息失败")
 	}
 
+	// 创建私聊消息
 	entity := model.Private{
 		UserModel: model.UserModel{
 			UserID: b.SenderUserId,
@@ -109,12 +112,21 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 	fmt.Printf("content: %s\n", r.Content)
 	fmt.Printf("body: %s\n", body)
 
+	// 消息队列
 	if err := PushDefaultExchange(body); err != nil {
 		tx.Rollback()
-		return nil, status.Errorf(codes.Internal, "发送私聊消息失败:%s", err.Error())
+		return nil, status.Errorf(codes.Internal, "队列发送私聊消息失败:%s", err.Error())
+	}
+
+	// 消息队列
+	if err := PushChatPrivateExchange(body); err != nil {
+		tx.Rollback()
+		return nil, status.Errorf(codes.Internal, "队列发送私聊消息失败:%s", err.Error())
 	}
 
 	tx.Commit()
+
+	// 创建会话
 	return m, nil
 }
 

@@ -46,9 +46,14 @@ type ContactServerConfig struct {
 }
 
 type RabbitMQServerConfig struct {
-	Host        string `mapstructure:"host" json:"host"`
-	Port        int64  `mapstructure:"port" json:"port"`
-	Name        string `mapstructure:"name" json:"name"`
-	Exchange    string `mapstructure:"exchange" json:"exchange"`
-	QueuePrefix string `mapstructure:"queue_suffix" json:"queue_suffix"`
+	Host                string `mapstructure:"host" json:"host"`
+	Port                int64  `mapstructure:"port" json:"port"`
+	Name                string `mapstructure:"name" json:"name"`
+	User                string `mapstructure:"user" json:"user"`
+	Password            string `mapstructure:"password" json:"password"`
+	Exchange            string `mapstructure:"exchange" json:"exchange"`
+	ExchangeChatPrivate string `mapstructure:"exchange_chat_private" json:"exchange_chat_private"`
+	ExchangeChatRoom    string `mapstructure:"exchange_chat_room" json:"exchange_chat_room"`
+	ExchangeChatGroup   string `mapstructure:"exchange_chat_group" json:"exchange_chat_group"`
+	QueuePrefix         string `mapstructure:"queue_suffix" json:"queue_suffix"`
 }

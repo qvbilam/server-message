@@ -15,6 +15,7 @@ type ExchangeBusiness struct {
 	Status int64
 }
 
+// Create 创建交换机
 func (b *ExchangeBusiness) Create() (int64, error) {
 	if b.Name == "" {
 		b.Name = global.ServerConfig.RabbitMQServerConfig.Exchange
@@ -90,5 +91,20 @@ func PushExchange(exchangeName string, body []byte) error {
 
 func PushDefaultExchange(body []byte) error {
 	exchange := global.ServerConfig.RabbitMQServerConfig.Exchange
+	return PushExchange(exchange, body)
+}
+
+func PushChatPrivateExchange(body []byte) error {
+	exchange := global.ServerConfig.RabbitMQServerConfig.ExchangeChatPrivate
+	return PushExchange(exchange, body)
+}
+
+func PushChatGroupExchange(body []byte) error {
+	exchange := global.ServerConfig.RabbitMQServerConfig.ExchangeChatGroup
+	return PushExchange(exchange, body)
+}
+
+func PushChatRoomExchange(body []byte) error {
+	exchange := global.ServerConfig.RabbitMQServerConfig.ExchangeChatRoom
 	return PushExchange(exchange, body)
 }

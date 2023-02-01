@@ -85,6 +85,11 @@ func (b *RoomMessageBusiness) CreateMessage() ([]byte, error) {
 		return nil, status.Errorf(codes.Internal, "发送私聊消息失败:%s", err.Error())
 	}
 
+	if err := PushChatRoomExchange(body); err != nil {
+		tx.Rollback()
+		return nil, status.Errorf(codes.Internal, "发送私聊消息失败:%s", err.Error())
+	}
+
 	tx.Commit()
 	return m, nil
 }

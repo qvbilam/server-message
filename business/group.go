@@ -137,7 +137,11 @@ func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 		}()
 
 		if err := PushDefaultExchange(body); err != nil {
-			fmt.Printf("发送群聊聊消息失败:%s", err.Error())
+			fmt.Printf("队列发送群聊失败:%s", err.Error())
+		}
+
+		if err := PushChatGroupExchange(body); err != nil {
+			fmt.Printf("队列发送群聊消息失败:%s", err.Error())
 		}
 	}
 }

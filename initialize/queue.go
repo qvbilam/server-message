@@ -9,10 +9,15 @@ import (
 )
 
 func InitQueue() {
-	user := "admin"
-	password := "admin"
-	host := "127.0.0.1"
-	port := 5672
+	//user := "admin"
+	//password := "admin"
+	//host := "127.0.0.1"
+	//port := 5672
+
+	host := global.ServerConfig.RabbitMQServerConfig.Host
+	port := global.ServerConfig.RabbitMQServerConfig.Port
+	user := global.ServerConfig.RabbitMQServerConfig.User
+	password := global.ServerConfig.RabbitMQServerConfig.Password
 
 	url := fmt.Sprintf("amqp://%s:%s@%s:%d", user, password, host, port)
 	conn, err := amqp.Dial(url)
@@ -22,13 +27,14 @@ func InitQueue() {
 
 	global.MessageQueueClient = conn
 
-	ExchangeName := global.ServerConfig.RabbitMQServerConfig.Exchange
+	fmt.Printf("create queue exchange: %s\n", global.ServerConfig.RabbitMQServerConfig.Exchange)
 
-	fmt.Printf("create queue exchange: %s\n", ExchangeName)
-
-	// 全局变量
-	global.ServerConfig.RabbitMQServerConfig.Exchange = ExchangeName
-
-	// 创建队列
-	_ = business.CreateExchange(ExchangeName)
+	// 创建消息队列
+	_ = business.CreateExchange(global.ServerConfig.RabbitMQServerConfig.Exchange)
+	// 创建用户聊天队列
+	_ = business.CreateExchange(global.ServerConfig.RabbitMQServerConfig.ExchangeChatPrivate)
+	// 创建群组聊天队列
+	_ = business.CreateExchange(global.ServerConfig.RabbitMQServerConfig.ExchangeChatGroup)
+	// 创建房间聊天队列
+	_ = business.CreateExchange(global.ServerConfig.RabbitMQServerConfig.ExchangeChatRoom)
 }

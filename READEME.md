@@ -24,4 +24,6 @@ go get -u github.com/anaskhan96/go-password-encoder
 
 # 配置
 go get -u github.com/spf13/viper
+
+# rocketmq
 ```

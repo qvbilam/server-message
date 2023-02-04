@@ -1,11 +1,13 @@
 package business
 
 import (
+	"context"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"math"
+	contactProto "message/api/qvbilam/contact/v1"
 	"message/enum"
 	"message/global"
 	"message/model"
@@ -18,6 +20,7 @@ type PrivateMessageBusiness struct {
 	Type         string          `json:"type"`
 	ContentType  string          `json:"-"`
 	Content      MessageBusiness `json:"content"`
+	Keyword      string          `json:"keyword"`
 
 	Page    *int64 `json:"-"`
 	PerPage *int64 `json:"-"`
@@ -34,9 +37,24 @@ func (b *PrivateMessageBusiness) Messages() (int64, []model.Private) {
 		return 0, nil
 	}
 
-	if res := global.DB.Where("type not in (?)", types).Where(&model.Private{ChatSn: b.PrivateChatSn()}).Preload("Message").Find(&m); res.RowsAffected == 0 {
+	page := *b.Page
+	perPage := *b.PerPage
+
+	if res := global.DB.Where("type not in (?)", types).
+		Where(&model.Private{ChatSn: b.PrivateChatSn()}).
+		Preload("Message").
+		Order("id desc").
+		Scopes(model.Paginate(int(page), int(perPage))).
+		Find(&m); res.RowsAffected == 0 {
 		return 0, nil
 	}
+
+	// 已读
+	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+		UserId:     b.SenderUserId,
+		ObjectType: enum.ObjTypePrivate,
+		ObjectId:   b.TargetUserId,
+	})
 
 	return count, m
 }

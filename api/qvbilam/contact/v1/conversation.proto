@@ -1,7 +1,7 @@
 syntax = "proto3";
 package contactPb.v1;
 import "google/protobuf/empty.proto";
-option go_package="contact/api/qvbilam/contact/v1;contactV1";
+option go_package="message/api/qvbilam/contact/v1;contactV1";
 
 message GetConversationRequest {
   int64 userId = 1;
@@ -46,6 +46,7 @@ message UpdateConversationRequest {
 
 service conversation {
   rpc Get(GetConversationRequest) returns (ConversationsResponse);
+  rpc Read(UpdateConversationRequest) returns (google.protobuf.Empty);
   rpc Create(UpdateConversationRequest) returns (google.protobuf.Empty);
   rpc Delete(UpdateConversationRequest) returns (google.protobuf.Empty);
 }

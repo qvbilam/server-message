@@ -19,6 +19,11 @@ type GroupMessageBusiness struct {
 	Type        string          `json:"type"`
 	ContentType string          `json:"-"`
 	Content     MessageBusiness `json:"content"`
+
+	Keyword string `json:"keyword"`
+
+	Page    *int64 `json:"-"`
+	PerPage *int64 `json:"-"`
 }
 
 func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
@@ -38,9 +43,24 @@ func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
 		return 0, nil
 	}
 
-	if res := global.DB.Where("type not in (?)", types).Where(condition).Preload("Message").Find(&m); res.RowsAffected == 0 {
+	page := *b.Page
+	perPage := *b.PerPage
+
+	if res := global.DB.Where("type not in (?)", types).
+		Where(condition).
+		Preload("Message").
+		Order("id desc").
+		Scopes(model.Paginate(int(page), int(perPage))).
+		Find(&m); res.RowsAffected == 0 {
 		return 0, nil
 	}
+
+	// 已读
+	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+		UserId:     b.UserId,
+		ObjectType: enum.ObjTypeGroup,
+		ObjectId:   b.GroupId,
+	})
 
 	return count, m
 }
@@ -112,36 +132,29 @@ func (b *GroupMessageBusiness) send(mb MessageBusiness) {
 		return
 	}
 
-	for _, m := range members.Members {
-		r := resource.GroupObject{
-			UserId:      m.User.Id,
-			SendUserId:  b.UserId,
-			TargetId:    b.GroupId,
-			ContentType: b.ContentType,
-			Content:     mb,
-		}
+	r := resource.GroupObject{
+		//UserId:      m.User.Id,
+		SendUserId:  b.UserId,
+		TargetId:    b.GroupId,
+		ContentType: b.ContentType,
+		Content:     mb,
+	}
 
-		body := r.Encode()
+	for _, m := range members.Members {
+		ur := r
+		ur.UserId = m.User.Id
+
+		body := ur.Encode()
+
 		//fmt.Printf("content: %s\n", r.Content)
 		//fmt.Printf("body: %s\n", body)
-
-		go func() {
-			if mb.Type == enum.MsgTypeTxt {
-				_, _ = global.ContactConversationServerClient.Create(context.Background(), &contactProto.UpdateConversationRequest{
-					UserId:      m.User.Id,
-					ObjectType:  enum.ObjTypeGroup,
-					ObjectId:    b.GroupId,
-					LastMessage: mb.Content,
-				})
-			}
-		}()
 
 		if err := PushDefaultExchange(body); err != nil {
 			fmt.Printf("队列发送群聊失败:%s", err.Error())
 		}
+	}
 
-		if err := PushChatGroupExchange(body); err != nil {
-			fmt.Printf("队列发送群聊消息失败:%s", err.Error())
-		}
+	if err := PushChatGroupExchange(r.Encode()); err != nil {
+		fmt.Printf("队列发送群聊失败:%s", err.Error())
 	}
 }

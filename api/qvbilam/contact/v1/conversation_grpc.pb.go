@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConversationClient interface {
 	Get(ctx context.Context, in *GetConversationRequest, opts ...grpc.CallOption) (*ConversationsResponse, error)
+	Read(ctx context.Context, in *UpdateConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Create(ctx context.Context, in *UpdateConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *UpdateConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -39,6 +40,15 @@ func NewConversationClient(cc grpc.ClientConnInterface) ConversationClient {
 func (c *conversationClient) Get(ctx context.Context, in *GetConversationRequest, opts ...grpc.CallOption) (*ConversationsResponse, error) {
 	out := new(ConversationsResponse)
 	err := c.cc.Invoke(ctx, "/contactPb.v1.conversation/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conversationClient) Read(ctx context.Context, in *UpdateConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.conversation/Read", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +78,7 @@ func (c *conversationClient) Delete(ctx context.Context, in *UpdateConversationR
 // for forward compatibility
 type ConversationServer interface {
 	Get(context.Context, *GetConversationRequest) (*ConversationsResponse, error)
+	Read(context.Context, *UpdateConversationRequest) (*emptypb.Empty, error)
 	Create(context.Context, *UpdateConversationRequest) (*emptypb.Empty, error)
 	Delete(context.Context, *UpdateConversationRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedConversationServer()
@@ -79,6 +90,9 @@ type UnimplementedConversationServer struct {
 
 func (UnimplementedConversationServer) Get(context.Context, *GetConversationRequest) (*ConversationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedConversationServer) Read(context.Context, *UpdateConversationRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
 }
 func (UnimplementedConversationServer) Create(context.Context, *UpdateConversationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
@@ -113,6 +127,24 @@ func _Conversation_Get_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConversationServer).Get(ctx, req.(*GetConversationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Conversation_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateConversationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConversationServer).Read(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contactPb.v1.conversation/Read",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConversationServer).Read(ctx, req.(*UpdateConversationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -163,6 +195,10 @@ var Conversation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Conversation_Get_Handler,
+		},
+		{
+			MethodName: "Read",
+			Handler:    _Conversation_Read_Handler,
 		},
 		{
 			MethodName: "Create",

@@ -18,5 +18,6 @@ var (
 	MessageQueueClient              *amqp.Connection
 	UserServerClient                userProto.UserClient
 	ContactGroupServerClient        contactProto.GroupClient
+	ContactFriendServerClient       contactProto.FriendClient
 	ContactConversationServerClient contactProto.ConversationClient
 )

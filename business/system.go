@@ -30,15 +30,8 @@ func (b *SystemMessageBusiness) CreateMessage() ([]byte, error) {
 		Type:    b.ContentType,
 		Content: b.Content.Content,
 		Url:     b.Content.Url,
-		User: &SendUser{
-			Id:       sender.Id,
-			Code:     sender.Code,
-			Nickname: sender.Nickname,
-			Avatar:   sender.Avatar,
-			Gender:   sender.Gender,
-			Extra:    "",
-		},
-		Extra: b.Content.Extra,
+		User:    sender,
+		Extra:   b.Content.Extra,
 	}
 	m, err := mb.Resource()
 

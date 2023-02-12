@@ -2,11 +2,13 @@ package business
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	contactProto "message/api/qvbilam/contact/v1"
+	proto "message/api/qvbilam/message/v1"
 	"message/enum"
 	"message/global"
 	"message/model"
@@ -24,6 +26,45 @@ type GroupMessageBusiness struct {
 
 	Page    *int64 `json:"-"`
 	PerPage *int64 `json:"-"`
+}
+
+func (b *GroupMessageBusiness) History() (int64, []*proto.MessageResponse, error) {
+	var mRes []*proto.MessageResponse
+
+	var userIds []int64
+	total, ms := b.Messages()
+	for _, m := range ms {
+		userIds = append(userIds, m.UserID)
+	}
+	sb := GroupSenderBusiness{
+		LoginUserId: b.UserId,
+		GroupId:     b.GroupId,
+		UserIds:     userIds,
+	}
+	senderMap, _ := sb.Senders()
+
+	// content 转结构体
+	for _, m := range ms {
+		mb := MessageBusiness{}
+		_ = json.Unmarshal([]byte(m.Message.Content), &mb)
+
+		// 更新用户结构体
+		if _, ok := senderMap[m.UserID]; ok {
+			mb.User = senderMap[m.UserID]
+
+			content, _ := mb.Resource()
+			mRes = append(mRes, &proto.MessageResponse{
+				UserId:      m.UserID,
+				UID:         m.MessageUid,
+				Type:        m.Type,
+				Introduce:   m.Content,
+				Content:     string(content),
+				CreatedTime: m.CreatedAt.Unix(),
+			})
+		}
+	}
+
+	return total, mRes, nil
 }
 
 func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
@@ -66,7 +107,11 @@ func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
 }
 
 func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
-	sb := SenderBusiness{UserId: b.UserId}
+	sb := GroupSenderBusiness{
+		LoginUserId: b.UserId,
+		GroupId:     b.GroupId,
+		UserId:      b.UserId,
+	}
 	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
@@ -77,15 +122,8 @@ func (b *GroupMessageBusiness) CreateMessage() ([]byte, error) {
 		Type:    b.ContentType,
 		Content: b.Content.Content,
 		Url:     b.Content.Url,
-		User: &SendUser{
-			Id:       sender.Id,
-			Code:     sender.Code,
-			Nickname: sender.Nickname,
-			Avatar:   sender.Avatar,
-			Gender:   sender.Gender,
-			Extra:    "",
-		},
-		Extra: b.Content.Extra,
+		User:    sender,
+		Extra:   b.Content.Extra,
 	}
 	m, err := mb.Resource()
 

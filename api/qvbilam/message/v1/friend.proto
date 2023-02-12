@@ -2,7 +2,7 @@ syntax = "proto3";
 package contactPb.v1;
 import "google/protobuf/empty.proto";
 import "api/qvbilam/user/v1/user.proto";
-option go_package="message/api/qvbilam/contact/v1;contactV1";
+option go_package="contact/api/qvbilam/contact/v1;contactV1";
 
 message FriendResponse {
   int64 id = 1;

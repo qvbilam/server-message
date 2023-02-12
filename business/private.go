@@ -2,12 +2,14 @@ package business
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"math"
 	contactProto "message/api/qvbilam/contact/v1"
+	proto "message/api/qvbilam/message/v1"
 	"message/enum"
 	"message/global"
 	"message/model"
@@ -26,9 +28,47 @@ type PrivateMessageBusiness struct {
 	PerPage *int64 `json:"-"`
 }
 
-func (b *PrivateMessageBusiness) Messages() (int64, []model.Private) {
+func (b *PrivateMessageBusiness) History() (int64, []*proto.MessageResponse, error) {
+	var mRes []*proto.MessageResponse
+
+	var userIds []int64
+	total, ms := b.Messages()
+	for _, m := range ms {
+		userIds = append(userIds, m.UserID)
+	}
+	sb := SenderBusiness{
+		LoginUserId: b.SenderUserId,
+		UserIds:     userIds,
+	}
+	senderMap, _ := sb.Senders()
+
+	// content 转结构体
+	for _, m := range ms {
+		mb := MessageBusiness{}
+		_ = json.Unmarshal([]byte(m.Message.Content), &mb)
+
+		// 更新用户结构体
+		if _, ok := senderMap[m.UserID]; ok {
+			mb.User = senderMap[m.UserID]
+
+			content, _ := mb.Resource()
+			mRes = append(mRes, &proto.MessageResponse{
+				UserId:      m.UserID,
+				UID:         m.MessageUid,
+				Type:        m.Type,
+				Introduce:   m.Content,
+				Content:     string(content),
+				CreatedTime: m.CreatedAt.Unix(),
+			})
+		}
+	}
+
+	return total, mRes, nil
+}
+
+func (b *PrivateMessageBusiness) Messages() (int64, []*model.Private) {
 	var count int64
-	var m []model.Private
+	var m []*model.Private
 	// 只需要部分消息
 	types := []string{enum.CmdMsgType, enum.TipMsgType}
 
@@ -61,7 +101,10 @@ func (b *PrivateMessageBusiness) Messages() (int64, []model.Private) {
 
 func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 	// 获取发送者
-	sb := SenderBusiness{UserId: b.SenderUserId}
+	sb := SenderBusiness{
+		LoginUserId: b.SenderUserId,
+		UserId:      b.SenderUserId,
+	}
 	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
@@ -71,15 +114,8 @@ func (b *PrivateMessageBusiness) CreateMessage() ([]byte, error) {
 		Type:    b.ContentType,
 		Content: b.Content.Content,
 		Url:     b.Content.Url,
-		User: &SendUser{
-			Id:       sender.Id,
-			Code:     sender.Code,
-			Nickname: sender.Nickname,
-			Avatar:   sender.Avatar,
-			Gender:   sender.Gender,
-			Extra:    "",
-		},
-		Extra: b.Content.Extra,
+		User:    sender,
+		Extra:   b.Content.Extra,
 	}
 	m, err := mb.Resource()
 

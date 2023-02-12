@@ -19,7 +19,10 @@ type RoomMessageBusiness struct {
 }
 
 func (b *RoomMessageBusiness) CreateMessage() ([]byte, error) {
-	sb := SenderBusiness{UserId: b.SenderUserId}
+	sb := SenderBusiness{
+		LoginUserId: b.SenderUserId,
+		UserId:      b.SenderUserId,
+	}
 	sender, err := sb.Sender()
 	if err != nil {
 		return nil, err
@@ -29,15 +32,8 @@ func (b *RoomMessageBusiness) CreateMessage() ([]byte, error) {
 		Type:    b.ContentType,
 		Content: b.Content.Content,
 		Url:     b.Content.Url,
-		User: &SendUser{
-			Id:       sender.Id,
-			Code:     sender.Code,
-			Nickname: sender.Nickname,
-			Avatar:   sender.Avatar,
-			Gender:   sender.Gender,
-			Extra:    "",
-		},
-		Extra: b.Content.Extra,
+		User:    sender,
+		Extra:   b.Content.Extra,
 	}
 	m, err := mb.Resource()
 

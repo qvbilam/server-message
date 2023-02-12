@@ -252,22 +252,18 @@ func (s *MessageServer) GetPrivateMessage(ctx context.Context, request *proto.Ge
 	b := business.PrivateMessageBusiness{
 		SenderUserId: request.UserId,
 		TargetUserId: request.TargetUserId,
+		Keyword:      request.Keyword,
+		Type:         request.Type,
+		Page:         &request.Page.Page,
+		PerPage:      &request.Page.PerPage,
 	}
 
-	count, messages := b.Messages()
-	var ms []*proto.MessageResponse
-	for _, m := range messages {
-		ms = append(ms, &proto.MessageResponse{
-			UID:       m.MessageUid,
-			Type:      m.Type,
-			Introduce: m.Content,
-			Content:   m.Message.Content,
-		})
+	count, messages, err := b.History()
+	if err != nil {
+		return nil, err
 	}
 
-	res := proto.MessagesResponse{Total: count}
-	res.Messages = ms
-
+	res := proto.MessagesResponse{Total: count, Messages: messages}
 	return &res, nil
 }
 
@@ -276,21 +272,16 @@ func (s *MessageServer) GetGroupMessage(ctx context.Context, request *proto.GetG
 	b := business.GroupMessageBusiness{
 		UserId:  request.UserId,
 		GroupId: request.GroupId,
+		Keyword: request.Keyword,
+		Type:    request.Type,
+		Page:    &request.Page.Page,
+		PerPage: &request.Page.PerPage,
 	}
 
-	count, messages := b.Messages()
-	var ms []*proto.MessageResponse
-	for _, m := range messages {
-		ms = append(ms, &proto.MessageResponse{
-			UID:       m.MessageUid,
-			Type:      m.Type,
-			Introduce: m.Content,
-			Content:   m.Message.Content,
-		})
+	count, messages, err := b.History()
+	if err != nil {
+		return nil, err
 	}
-
-	res := proto.MessagesResponse{Total: count}
-	res.Messages = ms
-
+	res := proto.MessagesResponse{Total: count, Messages: messages}
 	return &res, nil
 }

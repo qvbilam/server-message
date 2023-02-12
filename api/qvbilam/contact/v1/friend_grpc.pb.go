@@ -23,10 +23,13 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FriendClient interface {
-	Create(ctx context.Context, in *UpdateFriendRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Get(ctx context.Context, in *SearchFriendRequest, opts ...grpc.CallOption) (*FriendsResponse, error)
 	Update(ctx context.Context, in *UpdateFriendRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *UpdateFriendRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Get(ctx context.Context, in *SearchFriendRequest, opts ...grpc.CallOption) (*FriendsResponse, error)
+	GetApply(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*FriendAppliesResponse, error)
+	Apply(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ApplyAgree(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ApplyReject(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type friendClient struct {
@@ -37,9 +40,9 @@ func NewFriendClient(cc grpc.ClientConnInterface) FriendClient {
 	return &friendClient{cc}
 }
 
-func (c *friendClient) Create(ctx context.Context, in *UpdateFriendRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/Create", in, out, opts...)
+func (c *friendClient) Get(ctx context.Context, in *SearchFriendRequest, opts ...grpc.CallOption) (*FriendsResponse, error) {
+	out := new(FriendsResponse)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +67,36 @@ func (c *friendClient) Delete(ctx context.Context, in *UpdateFriendRequest, opts
 	return out, nil
 }
 
-func (c *friendClient) Get(ctx context.Context, in *SearchFriendRequest, opts ...grpc.CallOption) (*FriendsResponse, error) {
-	out := new(FriendsResponse)
-	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/Get", in, out, opts...)
+func (c *friendClient) GetApply(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*FriendAppliesResponse, error) {
+	out := new(FriendAppliesResponse)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/GetApply", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *friendClient) Apply(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/Apply", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *friendClient) ApplyAgree(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/ApplyAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *friendClient) ApplyReject(ctx context.Context, in *UpdateFriendApplyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/contactPb.v1.friend/ApplyReject", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +107,13 @@ func (c *friendClient) Get(ctx context.Context, in *SearchFriendRequest, opts ..
 // All implementations must embed UnimplementedFriendServer
 // for forward compatibility
 type FriendServer interface {
-	Create(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error)
+	Get(context.Context, *SearchFriendRequest) (*FriendsResponse, error)
 	Update(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error)
 	Delete(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error)
-	Get(context.Context, *SearchFriendRequest) (*FriendsResponse, error)
+	GetApply(context.Context, *UpdateFriendApplyRequest) (*FriendAppliesResponse, error)
+	Apply(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error)
+	ApplyAgree(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error)
+	ApplyReject(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedFriendServer()
 }
 
@@ -88,8 +121,8 @@ type FriendServer interface {
 type UnimplementedFriendServer struct {
 }
 
-func (UnimplementedFriendServer) Create(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedFriendServer) Get(context.Context, *SearchFriendRequest) (*FriendsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedFriendServer) Update(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
@@ -97,8 +130,17 @@ func (UnimplementedFriendServer) Update(context.Context, *UpdateFriendRequest) (
 func (UnimplementedFriendServer) Delete(context.Context, *UpdateFriendRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedFriendServer) Get(context.Context, *SearchFriendRequest) (*FriendsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedFriendServer) GetApply(context.Context, *UpdateFriendApplyRequest) (*FriendAppliesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApply not implemented")
+}
+func (UnimplementedFriendServer) Apply(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedFriendServer) ApplyAgree(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyAgree not implemented")
+}
+func (UnimplementedFriendServer) ApplyReject(context.Context, *UpdateFriendApplyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyReject not implemented")
 }
 func (UnimplementedFriendServer) mustEmbedUnimplementedFriendServer() {}
 
@@ -113,20 +155,20 @@ func RegisterFriendServer(s grpc.ServiceRegistrar, srv FriendServer) {
 	s.RegisterService(&Friend_ServiceDesc, srv)
 }
 
-func _Friend_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateFriendRequest)
+func _Friend_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchFriendRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FriendServer).Create(ctx, in)
+		return srv.(FriendServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/contactPb.v1.friend/Create",
+		FullMethod: "/contactPb.v1.friend/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FriendServer).Create(ctx, req.(*UpdateFriendRequest))
+		return srv.(FriendServer).Get(ctx, req.(*SearchFriendRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,20 +209,74 @@ func _Friend_Delete_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Friend_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchFriendRequest)
+func _Friend_GetApply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFriendApplyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FriendServer).Get(ctx, in)
+		return srv.(FriendServer).GetApply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/contactPb.v1.friend/Get",
+		FullMethod: "/contactPb.v1.friend/GetApply",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FriendServer).Get(ctx, req.(*SearchFriendRequest))
+		return srv.(FriendServer).GetApply(ctx, req.(*UpdateFriendApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Friend_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFriendApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FriendServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contactPb.v1.friend/Apply",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FriendServer).Apply(ctx, req.(*UpdateFriendApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Friend_ApplyAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFriendApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FriendServer).ApplyAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contactPb.v1.friend/ApplyAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FriendServer).ApplyAgree(ctx, req.(*UpdateFriendApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Friend_ApplyReject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFriendApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FriendServer).ApplyReject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contactPb.v1.friend/ApplyReject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FriendServer).ApplyReject(ctx, req.(*UpdateFriendApplyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -193,8 +289,8 @@ var Friend_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FriendServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _Friend_Create_Handler,
+			MethodName: "Get",
+			Handler:    _Friend_Get_Handler,
 		},
 		{
 			MethodName: "Update",
@@ -205,8 +301,20 @@ var Friend_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Friend_Delete_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _Friend_Get_Handler,
+			MethodName: "GetApply",
+			Handler:    _Friend_GetApply_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _Friend_Apply_Handler,
+		},
+		{
+			MethodName: "ApplyAgree",
+			Handler:    _Friend_ApplyAgree_Handler,
+		},
+		{
+			MethodName: "ApplyReject",
+			Handler:    _Friend_ApplyReject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

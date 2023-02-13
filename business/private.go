@@ -64,11 +64,14 @@ func (b *PrivateMessageBusiness) History() (int64, []*proto.MessageResponse, err
 	}
 
 	// 已读
-	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+	_, err := global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
 		UserId:     b.SenderUserId,
-		ObjectType: enum.ObjTypePrivate,
+		ObjectType: enum.ContactObjectTypeUser,
 		ObjectId:   b.TargetUserId,
 	})
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return total, mRes, nil
 }

@@ -64,6 +64,13 @@ func (b *GroupMessageBusiness) History() (int64, []*proto.MessageResponse, error
 		}
 	}
 
+	// 已读
+	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+		UserId:     b.UserId,
+		ObjectType: enum.ObjTypeGroup,
+		ObjectId:   b.GroupId,
+	})
+
 	return total, mRes, nil
 }
 
@@ -95,13 +102,6 @@ func (b *GroupMessageBusiness) Messages() (int64, []model.Group) {
 		Find(&m); res.RowsAffected == 0 {
 		return 0, nil
 	}
-
-	// 已读
-	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
-		UserId:     b.UserId,
-		ObjectType: enum.ObjTypeGroup,
-		ObjectId:   b.GroupId,
-	})
 
 	return count, m
 }

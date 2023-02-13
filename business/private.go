@@ -63,6 +63,13 @@ func (b *PrivateMessageBusiness) History() (int64, []*proto.MessageResponse, err
 		}
 	}
 
+	// 已读
+	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+		UserId:     b.SenderUserId,
+		ObjectType: enum.ObjTypePrivate,
+		ObjectId:   b.TargetUserId,
+	})
+
 	return total, mRes, nil
 }
 
@@ -88,13 +95,6 @@ func (b *PrivateMessageBusiness) Messages() (int64, []*model.Private) {
 		Find(&m); res.RowsAffected == 0 {
 		return 0, nil
 	}
-
-	// 已读
-	_, _ = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
-		UserId:     b.SenderUserId,
-		ObjectType: enum.ObjTypePrivate,
-		ObjectId:   b.TargetUserId,
-	})
 
 	return count, m
 }

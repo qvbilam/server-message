@@ -63,13 +63,13 @@ type Video struct {
 
 // File 文件消息
 type File struct {
-	Code  int64       `json:"code"`
-	Type  string      `json:"type"`
-	Name  string      `json:"name"`
-	Size  int         `json:"size"`
-	Url   string      `json:"url"`
-	User  User        `json:"user"`
-	Extra interface{} `json:"extra"`
+	Code    int64       `json:"code"`
+	Type    string      `json:"type"`
+	Content string      `json:"content"`
+	Url     string      `json:"url"`
+	Size    int         `json:"size"`
+	User    User        `json:"user"`
+	Extra   interface{} `json:"extra"`
 }
 
 // LBS 位置消息

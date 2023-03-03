@@ -22,6 +22,7 @@ func main() {
 	initialize.InitElasticSearch()
 	initialize.InitServer()
 	initialize.InitQueue()
+	go initialize.InitQueueHealth()
 
 	// 注册服务
 	server := grpc.NewServer()

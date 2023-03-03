@@ -48,7 +48,7 @@ func CreateExchange(exchangeName string) error {
 	// 建立 amqp 通道
 	ch, err := global.MessageQueueClient.Channel()
 	if err != nil {
-		zap.S().Fatalf("%s dial error: %s", "建立通道失败", err)
+		zap.S().Errorf("%s dial error: %s", "建立通道失败", err)
 		return err
 	}
 

@@ -1,7 +1,8 @@
 syntax = "proto3";
 package userPb.v1;
 import "google/protobuf/empty.proto";
-option go_package="message/api/qvbilam/user/v1;userV1";
+import "api/qvbilam/page/v1/page.proto";
+option go_package="user/api/qvbilam/user/v1/userPb;v1";
 
 // 更新用户
 message UpdateRequest{
@@ -12,6 +13,7 @@ message UpdateRequest{
   string password = 5;
   string gender = 6;
   string avatar = 7;
+  int64 accountId = 8;
 }
 
 // 获取用户请求
@@ -33,27 +35,19 @@ message UserResponse{
 // 获取用户等级响应
 message LevelResponse{
   int64 id = 1;
-  string name = 2;
-  string icon = 3;
+  int64 level = 2;
+  string name = 3;
+  string icon = 4;
+  int64 exp = 5;
 }
 
-// 密码验证请求
-message CheckPasswordRequest{
-  string password =1;
-  string enctypedPassword = 2;
-}
-
-// 验证密码响应
-message CheckPasswordResponse{
-  bool success = 1;
-}
 
 message SearchRequest {
   repeated int64 id = 1;
   string keyword = 2;
   string sort = 3;
   bool is_visible = 4;
-  PageRequest page = 5;
+  pagePb.v1.PageRequest page = 5;
 }
 
 message UsersResponse {
@@ -61,32 +55,38 @@ message UsersResponse {
   int64 total = 2;
 }
 
-message PageRequest{
-  int64 page = 1;
-  int64 perPage = 2;
-}
-
-message LoginRequest{
-  string mobile = 1;
-  string email = 2;
-  string password = 3;
-}
+//message LoginRequest{
+//  string mobile = 1;
+//  string email = 2;
+//  string password = 3;
+//}
 
 message AuthRequest {
-  int64 id = 1;
-  string token = 2;
+  string token = 1;
+}
+
+message LevelExpRequest {
+  int64 userId = 1;
+  int64 exp = 2;
+  string businessType = 3;
+  int64 businessId = 4;
+}
+
+message LevelExpResponse{
+  bool isUpgrade = 1;
+  LevelResponse level = 2;
 }
 
 
-service User{
+service User {
   rpc Create(UpdateRequest) returns (UserResponse); // 创建用户
   rpc Update(UpdateRequest) returns (google.protobuf.Empty); // 更新用户
   rpc Delete(UpdateRequest) returns (google.protobuf.Empty); // 删除用户
   rpc Detail(GetUserRequest) returns (UserResponse); // 通过id获取用户
   rpc List(SearchRequest) returns (UsersResponse); // 用户列表
   rpc Search(SearchRequest) returns (UsersResponse); // 搜索用户
-  rpc CheckPassword(CheckPasswordRequest) returns (CheckPasswordResponse); // 验证用户密码
-  rpc Login(LoginRequest) returns (UserResponse); // 登陆
-  rpc Logout(GetUserRequest) returns (google.protobuf.Empty);
+//  rpc Login(LoginRequest) returns (UserResponse); // 登陆
+//  rpc Logout(GetUserRequest) returns (google.protobuf.Empty);
   rpc Auth(AuthRequest) returns (UserResponse); // 授权
+  rpc LevelExp(LevelExpRequest) returns (LevelExpResponse); // 经验
 }

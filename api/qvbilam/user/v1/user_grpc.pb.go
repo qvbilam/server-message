@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: user.proto
 
-package userV1
+package v1
 
 import (
 	context "context"
@@ -29,10 +29,10 @@ type UserClient interface {
 	Detail(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	List(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*UsersResponse, error)
-	CheckPassword(ctx context.Context, in *CheckPasswordRequest, opts ...grpc.CallOption) (*CheckPasswordResponse, error)
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	Logout(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	//  rpc Login(LoginRequest) returns (UserResponse); // 登陆
+	//  rpc Logout(GetUserRequest) returns (google.protobuf.Empty);
 	Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	LevelExp(ctx context.Context, in *LevelExpRequest, opts ...grpc.CallOption) (*LevelExpResponse, error)
 }
 
 type userClient struct {
@@ -97,36 +97,18 @@ func (c *userClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *userClient) CheckPassword(ctx context.Context, in *CheckPasswordRequest, opts ...grpc.CallOption) (*CheckPasswordResponse, error) {
-	out := new(CheckPasswordResponse)
-	err := c.cc.Invoke(ctx, "/userPb.v1.User/CheckPassword", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, "/userPb.v1.User/Login", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) Logout(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/userPb.v1.User/Logout", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userClient) Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*UserResponse, error) {
 	out := new(UserResponse)
 	err := c.cc.Invoke(ctx, "/userPb.v1.User/Auth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) LevelExp(ctx context.Context, in *LevelExpRequest, opts ...grpc.CallOption) (*LevelExpResponse, error) {
+	out := new(LevelExpResponse)
+	err := c.cc.Invoke(ctx, "/userPb.v1.User/LevelExp", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -143,10 +125,10 @@ type UserServer interface {
 	Detail(context.Context, *GetUserRequest) (*UserResponse, error)
 	List(context.Context, *SearchRequest) (*UsersResponse, error)
 	Search(context.Context, *SearchRequest) (*UsersResponse, error)
-	CheckPassword(context.Context, *CheckPasswordRequest) (*CheckPasswordResponse, error)
-	Login(context.Context, *LoginRequest) (*UserResponse, error)
-	Logout(context.Context, *GetUserRequest) (*emptypb.Empty, error)
+	//  rpc Login(LoginRequest) returns (UserResponse); // 登陆
+	//  rpc Logout(GetUserRequest) returns (google.protobuf.Empty);
 	Auth(context.Context, *AuthRequest) (*UserResponse, error)
+	LevelExp(context.Context, *LevelExpRequest) (*LevelExpResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -172,17 +154,11 @@ func (UnimplementedUserServer) List(context.Context, *SearchRequest) (*UsersResp
 func (UnimplementedUserServer) Search(context.Context, *SearchRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (UnimplementedUserServer) CheckPassword(context.Context, *CheckPasswordRequest) (*CheckPasswordResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckPassword not implemented")
-}
-func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*UserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
-}
-func (UnimplementedUserServer) Logout(context.Context, *GetUserRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
-}
 func (UnimplementedUserServer) Auth(context.Context, *AuthRequest) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Auth not implemented")
+}
+func (UnimplementedUserServer) LevelExp(context.Context, *LevelExpRequest) (*LevelExpResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LevelExp not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -305,60 +281,6 @@ func _User_Search_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_CheckPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckPasswordRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).CheckPassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/userPb.v1.User/CheckPassword",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).CheckPassword(ctx, req.(*CheckPasswordRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).Login(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/userPb.v1.User/Login",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Login(ctx, req.(*LoginRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).Logout(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/userPb.v1.User/Logout",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Logout(ctx, req.(*GetUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _User_Auth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthRequest)
 	if err := dec(in); err != nil {
@@ -373,6 +295,24 @@ func _User_Auth_Handler(srv interface{}, ctx context.Context, dec func(interface
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).Auth(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_LevelExp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LevelExpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).LevelExp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/userPb.v1.User/LevelExp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).LevelExp(ctx, req.(*LevelExpRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -409,20 +349,12 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_Search_Handler,
 		},
 		{
-			MethodName: "CheckPassword",
-			Handler:    _User_CheckPassword_Handler,
-		},
-		{
-			MethodName: "Login",
-			Handler:    _User_Login_Handler,
-		},
-		{
-			MethodName: "Logout",
-			Handler:    _User_Logout_Handler,
-		},
-		{
 			MethodName: "Auth",
 			Handler:    _User_Auth_Handler,
+		},
+		{
+			MethodName: "LevelExp",
+			Handler:    _User_LevelExp_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

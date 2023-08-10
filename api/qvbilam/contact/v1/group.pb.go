@@ -10,7 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	userPb "message/api/qvbilam/user/v1/userPb"
+	v1 "message/api/qvbilam/user/v1"
 	reflect "reflect"
 	sync "sync"
 )
@@ -621,16 +621,16 @@ type GroupMemberResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id          int64                `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Group       *GroupResponse       `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	User        *userPb.UserResponse `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
-	Nickname    string               `protobuf:"bytes,4,opt,name=nickname,proto3" json:"nickname,omitempty"`
-	Role        int64                `protobuf:"varint,5,opt,name=role,proto3" json:"role,omitempty"`
-	Level       int64                `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
-	Remark      string               `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`
-	IsDnd       bool                 `protobuf:"varint,8,opt,name=isDnd,proto3" json:"isDnd,omitempty"`
-	IsBanned    bool                 `protobuf:"varint,9,opt,name=isBanned,proto3" json:"isBanned,omitempty"`
-	CreatedTime int64                `protobuf:"varint,10,opt,name=createdTime,proto3" json:"createdTime,omitempty"`
+	Id          int64            `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Group       *GroupResponse   `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
+	User        *v1.UserResponse `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	Nickname    string           `protobuf:"bytes,4,opt,name=nickname,proto3" json:"nickname,omitempty"`
+	Role        int64            `protobuf:"varint,5,opt,name=role,proto3" json:"role,omitempty"`
+	Level       int64            `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
+	Remark      string           `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`
+	IsDnd       bool             `protobuf:"varint,8,opt,name=isDnd,proto3" json:"isDnd,omitempty"`
+	IsBanned    bool             `protobuf:"varint,9,opt,name=isBanned,proto3" json:"isBanned,omitempty"`
+	CreatedTime int64            `protobuf:"varint,10,opt,name=createdTime,proto3" json:"createdTime,omitempty"`
 }
 
 func (x *GroupMemberResponse) Reset() {
@@ -679,7 +679,7 @@ func (x *GroupMemberResponse) GetGroup() *GroupResponse {
 	return nil
 }
 
-func (x *GroupMemberResponse) GetUser() *userPb.UserResponse {
+func (x *GroupMemberResponse) GetUser() *v1.UserResponse {
 	if x != nil {
 		return x.User
 	}
@@ -988,7 +988,7 @@ var file_group_proto_goTypes = []interface{}{
 	(*UpdateGroupMemberRequest)(nil), // 5: contactPb.v1.UpdateGroupMemberRequest
 	(*GroupMemberResponse)(nil),      // 6: contactPb.v1.GroupMemberResponse
 	(*GroupMembersResponse)(nil),     // 7: contactPb.v1.GroupMembersResponse
-	(*userPb.UserResponse)(nil),      // 8: userPb.v1.UserResponse
+	(*v1.UserResponse)(nil),          // 8: userPb.v1.UserResponse
 	(*emptypb.Empty)(nil),            // 9: google.protobuf.Empty
 }
 var file_group_proto_depIdxs = []int32{

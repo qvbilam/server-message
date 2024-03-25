@@ -14,15 +14,18 @@ type SenderBusiness struct {
 }
 
 func (b *SenderBusiness) Sender() (*SendUser, error) {
+	var remark string
+
 	// 获取好友备注
 	users, _ := global.ContactFriendServerClient.Get(context.Background(), &contactProto.SearchFriendRequest{
 		UserId:    b.LoginUserId,
 		FriendIds: []int64{b.UserId},
 	})
-	var remark string
-	if users.Total > 0 {
-		for _, u := range users.Friends {
-			remark = u.Remark
+	if users != nil {
+		if users.Total > 0 {
+			for _, u := range users.Friends {
+				remark = u.Remark
+			}
 		}
 	}
 

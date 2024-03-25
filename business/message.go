@@ -2,6 +2,7 @@ package business
 
 import (
 	"encoding/json"
+	"fmt"
 	"message/enum"
 	"message/resource"
 	"strconv"
@@ -62,6 +63,7 @@ func (b *MessageBusiness) imageResource() ([]byte, error) {
 }
 
 func (b *MessageBusiness) userResource() resource.User {
+	fmt.Println(b)
 	userId := int(b.User.Id)
 	if b.User == nil {
 		name := ""

@@ -23,6 +23,7 @@ type PrivateMessageBusiness struct {
 	ContentType  string          `json:"-"`
 	Content      MessageBusiness `json:"content"`
 	Keyword      string          `json:"keyword"`
+	MessageUid   string          `json:"message_uid"`
 
 	Page    *int64 `json:"-"`
 	PerPage *int64 `json:"-"`
@@ -191,4 +192,46 @@ func (b *PrivateMessageBusiness) PrivateChatSn() string {
 	min := math.Min(float64(b.SenderUserId), float64(b.TargetUserId))
 	max := math.Max(float64(b.SenderUserId), float64(b.TargetUserId))
 	return fmt.Sprintf("%d-%d", int64(min), int64(max))
+}
+
+func (b *PrivateMessageBusiness) Rollback() error {
+	tx := global.DB.Begin()
+	entity := model.Private{}
+	if res := tx.Where(model.Private{MessageUid: b.MessageUid}).First(&entity); res.RowsAffected == 0 {
+		tx.Rollback()
+		return status.Errorf(codes.NotFound, "消息不存在")
+	}
+	if entity.UserID != b.SenderUserId {
+		tx.Rollback()
+		return status.Errorf(codes.InvalidArgument, "无权撤回他人消息")
+	}
+	// 删除消息
+	tx.Delete(&entity)
+	// 创建撤回消息
+	mb := PrivateMessageBusiness{
+		SenderUserId: entity.TargetUserId,
+		TargetUserId: entity.UserID,
+		ContentType:  enum.MsgTypeRollback,
+		Content: MessageBusiness{
+			Type:    enum.MsgTypeTxt,
+			Content: "撤回了一条消息",
+			User:    &SendUser{Id: b.SenderUserId},
+		},
+	}
+	_, _ = mb.CreateMessage()
+	mb.SenderUserId = entity.UserID
+	mb.TargetUserId = entity.TargetUserId
+	_, _ = mb.CreateMessage()
+
+	tx.Commit()
+	return nil
+}
+
+func (b *PrivateMessageBusiness) Message() (*model.Private, error) {
+	entity := model.Private{}
+	if res := global.DB.Where(model.Private{MessageUid: b.MessageUid}).First(&entity); res.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "消息不存在")
+	}
+
+	return &entity, nil
 }

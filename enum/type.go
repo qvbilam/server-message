@@ -1,7 +1,7 @@
 package enum
 
 const ContactObjectTypeUser = "user"
-const ObjTypePrivate = "private"
+const ObjTypeUser = "user"
 const ObjTypeRoom = "room"
 const ObjTypeGroup = "group"
 const ObjTypeSystem = "system"
@@ -16,6 +16,8 @@ const MsgTypeFile = "FileMsg"           // 文件消息
 const MsgTypeLBS = "LBSMsg"             // 位置消息
 const MsgTypeReference = "ReferenceMsg" // 引用消息
 const MsgTypeCombineMsg = "CombineMsg"  // 合并转发消息
+const MsgTypeRollback = "RollbackMsg"   // 撤回消息
+const MsgTypeRead = "ReadMsg"           // 已读消息
 
 const CmdMsgType = "CmdMsg" // 命令消息
 const TipMsgType = "TipMsg" // 提示消息

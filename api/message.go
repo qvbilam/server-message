@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	contactProto "message/api/qvbilam/contact/v1"
 	proto "message/api/qvbilam/message/v1"
 	"message/business"
 	"message/enum"
@@ -284,4 +287,47 @@ func (s *MessageServer) GetGroupMessage(ctx context.Context, request *proto.GetG
 	}
 	res := proto.MessagesResponse{Total: count, Messages: messages}
 	return &res, nil
+}
+
+// RollbackMessage 撤回消息
+func (s *MessageServer) RollbackMessage(ctx context.Context, request *proto.RollbackMessageRequest) (*emptypb.Empty, error) {
+	if request.ObjectType == enum.ContactObjectTypeUser {
+		b := business.PrivateMessageBusiness{MessageUid: request.MessageUid, SenderUserId: request.UserId}
+		err := b.Rollback()
+		if err != nil {
+			return nil, err
+		}
+		return &emptypb.Empty{}, nil
+	}
+	return nil, status.Error(codes.Unimplemented, "功能开发中...")
+}
+
+func (s *MessageServer) ReadPrivateMessage(ctx context.Context, request *proto.ReadPrivateMessageRequest) (*emptypb.Empty, error) {
+	b := business.PrivateMessageBusiness{MessageUid: request.MessageUid}
+	msg, err := b.Message()
+	if err != nil {
+		return nil, err
+	}
+
+	// 告诉发送者用户已读消息
+	pb := business.PrivateMessageBusiness{
+		SenderUserId: request.UserId,
+		TargetUserId: msg.UserID,
+		ContentType:  enum.MsgTypeRead,
+		Content:      business.MessageBusiness{},
+	}
+	if _, err = pb.CreateMessage(); err != nil {
+		return nil, err
+	}
+
+	// 联系人更新已读用户的新消息
+	_, err = global.ContactConversationServerClient.Read(context.Background(), &contactProto.UpdateConversationRequest{
+		UserId:     request.UserId,
+		ObjectType: enum.ContactObjectTypeUser,
+		ObjectId:   msg.UserID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }

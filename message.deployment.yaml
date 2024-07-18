@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-server
+  labels:
+    app: message-server
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: message-server
+  template:
+    metadata:
+      labels:
+        app: message-server
+        version: v1.0
+    spec:
+      containers:
+        - name: user-server
+          image: registry.cn-hangzhou.aliyuncs.com/qvbilam/api-server-message:1.0.0
+          # 不存在拉取
+          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          ports: # 容器内部使用端口
+            - containerPort: 9501
+          env:
+            # 服务配置
+            - name: SERVER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: server_name
+                  name: message
+            # db 配置
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: db_host
+                  name: message
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: db_port
+                  name: message
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: db_user
+                  name: message
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: db_password
+                  name: message
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: db_database
+                  name: message
+            # redis
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: redis_host
+                  name: message
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: redis_port
+                  name: message
+            - name: REDIS_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: redis_database
+                  name: message
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: redis_password
+                  name: message
+            # elasticsearch
+            - name: ES_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: es_host
+                  name: message
+            - name: ES_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: es_port
+                  name: message
+            #  rabbit
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_host
+                  name: message
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_port
+                  name: message
+            - name: RABBITMQ_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_name
+                  name: message
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_user
+                  name: message
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_password
+                  name: message
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_exchange
+                  name: message
+            - name: RABBITMQ_EXCHANGE_CHAT_PRIVATE
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_exchange_chat_private
+                  name: message
+            - name: RABBITMQ_EXCHANGE_CHAT_GROUP
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_exchange_chat_group
+                  name: message
+            - name: RABBITMQ_EXCHANGE_CHAT_ROOM
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_exchange_chat_room
+                  name: message
+            - name: RABBITMQ_QUEUE_SUFFIX
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_queue_suffix
+                  name: message
+            # contact-server
+            - name: CONTACT_SERVER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: contact_server_name
+                  name: message
+            - name: CONTACT_SERVER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: contact_server_host
+                  name: message
+            - name: CONTACT_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: contact_server_port
+                  name: message
+            # user-server
+            - name: USER_SERVER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: user_server_name
+                  name: message
+            - name: USER_SERVER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: user_server_host
+                  name: message
+            - name: USER_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: user_server_port
+                  name: message
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      imagePullSecrets:
+        - name: ali-image-key

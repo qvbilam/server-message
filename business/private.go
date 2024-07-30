@@ -46,6 +46,9 @@ func (b *PrivateMessageBusiness) History() (int64, []*proto.MessageResponse, err
 	// content 转结构体
 	for _, m := range ms {
 		mb := MessageBusiness{}
+		if m.Message == nil {
+			continue
+		}
 		_ = json.Unmarshal([]byte(m.Message.Content), &mb)
 
 		// 更新用户结构体

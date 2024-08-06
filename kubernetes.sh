@@ -2,6 +2,7 @@
 # default
 servername=message
 kubernetesServername="$servername"-server # *.server.yaml.metadata.name
+podName="$servername"-server # *.deployment.yaml.metadata.name
 serverPort=9804
 targetPort=9804
 defaultNamespace="default" # 默认命名空间
@@ -82,7 +83,22 @@ fi
 # 申请配置与资源
 kubectl apply -f ${servername}.secret.yaml -n $namespace
 kubectl apply -f ${servername}.config.yaml -n $namespace
-kubectl apply -f ${servername}.deployment.yaml -n $namespace
+
+
+# 检查Deployment的状态，确保至少有一个可用的副本
+deploymentStatus=$(kubectl get deployments "$podName" --namespace="$namespace" -o jsonpath='{.status.availableReplicas}')
+if [ "$deploymentStatus" -eq 0 ]; then # 无成功运行货不存在申请pods
+    kubectl apply -f ${servername}.deployment.yaml -n $namespace
+    echo "Pods status:"
+    kubectl get pods --selector=app=$podName --namespace="$namespace"
+    exit 1
+else # 有正在运行的pods重启
+    kubectl rollout restart deployment $podName
+    # 可选：列出Pods作为确认
+    echo "Pods status:"
+    kubectl get pods --selector=app=$podName --namespace="$namespace"
+fi
+
 kubectl apply -f ${servername}.server.yaml -n $namespace
 
 

@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: user-server
-          image: registry.cn-hangzhou.aliyuncs.com/qvbilam/api-server-message:1.0.0
+          image: registry.cn-hangzhou.aliyuncs.com/qvbilam/api-server-message:1.0
           # 不存在拉取
           # imagePullPolicy: IfNotPresent
           imagePullPolicy: Always
